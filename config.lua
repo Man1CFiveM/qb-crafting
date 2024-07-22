@@ -1,176 +1,192 @@
-Config = {
-    EnableSkillCheck = true,
-    ImageBasePath = "nui://qb-inventory/html/images/",
-    item_bench = {
-        object = `prop_tool_bench02`,
-        xpType = 'craftingrep',
-        recipes = {
-            {
-                item = 'lockpick',
-                xpRequired = 0,
-                xpGain = 1,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 22 },
-                    { item = 'plastic',    amount = 32 }
-                }
-            },
-            {
-                item = 'screwdriverset',
-                xpRequired = 0,
-                xpGain = 2,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 30 },
-                    { item = 'plastic',    amount = 42 }
-                }
-            },
-            {
-                item = 'electronickit',
-                xpRequired = 0,
-                xpGain = 3,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 30 },
-                    { item = 'plastic',    amount = 45 },
-                    { item = 'aluminum',   amount = 28 }
-                }
-            },
-            {
-                item = 'radioscanner',
-                xpRequired = 0,
-                xpGain = 4,
-                requiredItems = {
-                    { item = 'electronickit', amount = 2 },
-                    { item = 'plastic',       amount = 52 },
-                    { item = 'steel',         amount = 40 }
-                }
-            },
-            {
-                item = 'gatecrack',
-                xpRequired = 110,
-                xpGain = 5,
-                requiredItems = {
-                    { item = 'metalscrap',    amount = 10 },
-                    { item = 'plastic',       amount = 50 },
-                    { item = 'aluminum',      amount = 30 },
-                    { item = 'iron',          amount = 17 },
-                    { item = 'electronickit', amount = 2 }
-                }
-            },
-            {
-                item = 'handcuffs',
-                xpRequired = 160,
-                xpGain = 6,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 36 },
-                    { item = 'steel',      amount = 24 },
-                    { item = 'aluminum',   amount = 28 }
-                }
-            },
-            {
-                item = 'repairkit',
-                xpRequired = 200,
-                xpGain = 7,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 32 },
-                    { item = 'steel',      amount = 43 },
-                    { item = 'plastic',    amount = 61 }
-                }
-            },
-            {
-                item = 'pistol_ammo',
-                xpRequired = 250,
-                xpGain = 8,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 50 },
-                    { item = 'steel',      amount = 37 },
-                    { item = 'copper',     amount = 26 }
-                }
-            },
-            {
-                item = 'ironoxide',
-                xpRequired = 300,
-                xpGain = 9,
-                requiredItems = {
-                    { item = 'iron',  amount = 60 },
-                    { item = 'glass', amount = 30 }
-                }
-            },
-            {
-                item = 'aluminumoxide',
-                xpRequired = 300,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'aluminum', amount = 60 },
-                    { item = 'glass',    amount = 30 }
-                }
-            },
-            {
-                item = 'armor',
-                xpRequired = 350,
-                xpGain = 11,
-                requiredItems = {
-                    { item = 'iron',     amount = 33 },
-                    { item = 'steel',    amount = 44 },
-                    { item = 'plastic',  amount = 55 },
-                    { item = 'aluminum', amount = 22 }
-                }
-            },
-            {
-                item = 'drill',
-                xpRequired = 1750,
-                xpGain = 12,
-                requiredItems = {
-                    { item = 'iron',             amount = 50 },
-                    { item = 'steel',            amount = 50 },
-                    { item = 'screwdriverset',   amount = 3 },
-                    { item = 'advancedlockpick', amount = 2 }
-                }
-            },
+Config = {}
+Config.Settings = {
+    UseItem = false, -- Enable or disable the useable item, if enabled the player will have to use the item to open the crafting menu where it will place the crafting bench else use all the objects in the Config.Benches table
+    Target = false, -- Enable or disable the target system, if enabled the player will have to target the crafting bench to open the crafting menu else press E to open the crafting menu
+    TargetDistance = 2.5, -- Distance to target the crafting bench
+    TargetIcon = 'fas fa-tools', -- Icon to display when targeting the crafting bench
+    Minigame = true, -- Enable or disable the skill check, if enabled the player will have to complete a skill check to craft the item
+    LostComponent = true, -- Enable or disable losing a component, if player fails the skill check or cancels the progresssbar they will lose a component
+    ImageBasePath = "nui://qb-inventory/html/images/", -- When using a different inventory, change this to the base path of the inventory images
+    CraftingTime = {
+        Min = 1000, -- Minimum time in milliseconds to craft the item
+        Max = 2000, -- Maximum time in milliseconds to craft the item
+        Multiplied = true -- Enable or disable the multiplied crafting time, if enabled the crafting time will be multiplied by the amount of items to craft
+    },
+}
+
+Config.Minigame = function() -- Minigame to use for the skill check, needs to return atleast a true when succesfull
+    return exports['qb-minigames']:Skillbar('easy', '12345')
+end
+
+Config.Recipes = {
+    default = {
+        ['lockpick'] = {
+            required = 0,
+            reward = 1,
+            components = {
+                metalscrap = 22,
+                plastic = 32
+            }
+        },
+        ['screwdriverset'] = {
+            required = 0,
+            reward = 2,
+            components = {
+                metalscrap = 30,
+                plastic = 42
+            }
+        },
+        ['electronickit'] = {
+            required = 0,
+            reward = 3,
+            components = {
+                metalscrap = 30,
+                plastic = 45,
+                aluminum = 28
+            }
+        },
+        ['radioscanner'] = {
+            required = 0,
+            reward = 4,
+            components = {
+                electronickit = 2,
+                plastic = 52,
+                steel = 40
+            }
+        },
+        ['gatecrack'] = {
+            required = 110,
+            reward = 5,
+            components = {
+                metalscrap = 10,
+                plastic = 50,
+                aluminum = 30,
+                iron = 17,
+                electronickit = 2
+            }
+        },
+        ['handcuffs'] = {
+            required = 160,
+            reward = 6,
+            components = {
+                metalscrap = 36,
+                steel = 24,
+                aluminum = 28
+            }
+        },
+        ['repairkit'] = {
+            required = 200,
+            reward = 7,
+            components = {
+                metalscrap = 32,
+                steel = 43,
+                plastic = 61
+            }
+        },
+        ['pistol_ammo'] = {
+            required = 250,
+            reward = 8,
+            components = {
+                metalscrap = 50,
+                steel = 37,
+                copper = 26
+            }
+        },
+        ['ironoxide'] = {
+            required = 300,
+            reward = 9,
+            components = {
+                iron = 60,
+                glass = 30
+            }
+        },
+        ['aluminumoxide'] = {
+            required = 300,
+            reward = 10,
+            components = {
+                aluminum = 60,
+                glass = 30
+            }
+        },
+        ['armor'] = {
+            required = 350,
+            reward = 11,
+            components = {
+                iron = 33,
+                steel = 44,
+                plastic = 55,
+                aluminum = 22
+            }
+        },
+        ['drill'] = {
+            required = 1750,
+            reward = 12,
+            components = {
+                iron = 50,
+                steel = 50,
+                screwdriverset = 3,
+                advancedlockpick = 2
+            }
+        },
+    },
+    attachment = {
+        ['clip_attachment'] = {
+            required = 0,
+            reward = 10,
+            components = {
+                metalscrap = 140,
+                steel = 250,
+                rubber = 60
+            }
+        },
+        ['suppressor_attachment'] = {
+            required = 0,
+            reward = 10,
+            components = {
+                metalscrap = 165,
+                steel = 285,
+                rubber = 75
+            }
+        },
+        ['drum_attachment'] =  {
+            required = 0,
+            reward = 10,
+            components = {
+                metalscrap = 230,
+                steel = 365,
+                rubber = 130
+            }
+        },
+        ['smallscope_attachment'] = {
+            required = 0,
+            reward = 10,
+            components = {
+                metalscrap = 255,
+                steel = 390,
+                rubber = 145
+            }
+        },
+    }
+}
+
+Config.Benches = {
+    [1] = { -- item bench
+        item = 'useableitemtoplaceitembench', -- item to use to open the crafting menu
+        model = "prop_toolchest_05", -- object to use to open the crafting menu
+        skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
+        recipes = 'default', -- recipes to use for the crafting bench
+        locations = {
+            vector3(-13.94, -1086.91, 26.67),
+            vector3(-14.19, -1102.33, 26.67),
+        } -- location of crafting bench for using press button. this can be ignored if Config.Settings.target is enabled
+    },
+    [2] = { -- attachment bench
+        item = 'useableitemtoplaceattachmentbench',
+        model = "prop_tool_bench02_ld",
+        skill = 'attachmentcraftingrep',
+        recipes = 'attachment',
+        locations = {
+            vector3(0, 0, 0)
         }
     },
-    attachment_bench = {
-        object = `prop_tool_bench02_ld`,
-        xpType = 'attachmentcraftingrep',
-        recipes = {
-            {
-                item = 'clip_attachment',
-                xpRequired = 0,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 140 },
-                    { item = 'steel',      amount = 250 },
-                    { item = 'rubber',     amount = 60 }
-                }
-            },
-            {
-                item = 'suppressor_attachment',
-                xpRequired = 0,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 165 },
-                    { item = 'steel',      amount = 285 },
-                    { item = 'rubber',     amount = 75 }
-                }
-            },
-            {
-                item = 'drum_attachment',
-                xpRequired = 0,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 230 },
-                    { item = 'steel',      amount = 365 },
-                    { item = 'rubber',     amount = 130 }
-                }
-            },
-            {
-                item = 'smallscope_attachment',
-                xpRequired = 0,
-                xpGain = 10,
-                requiredItems = {
-                    { item = 'metalscrap', amount = 255 },
-                    { item = 'steel',      amount = 390 },
-                    { item = 'rubber',     amount = 145 }
-                }
-            },
-        }
-    }
 }

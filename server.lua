@@ -1,79 +1,100 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+--Functions
+local function addReward(src, reward, skill)
+    local Player = QBCore.Functions.GetPlayer(src)
+    local currentXP = Player.Functions.GetRep(skill)
+    local newXP = currentXP + reward
+    Player.Functions.AddRep(skill, newXP)
+    QBCore.Functions.Notify(string.format(Lang:t('notifications.xpGain'),source, reward, skill), 'success')
+end
 
--- Functions
+local function createUseableTable(benchType, vector4, src)
+    local workbench = CreateObjectNoOffset(joaat(benchType), vector4.x, vector4.y, vector4.z-1, true, true, false)
+    SetEntityHeading(workbench, vector4.w)
+    TriggerClientEvent('qb-crafting:client:useCraftingBench', src, benchType, NetworkGetNetworkIdFromEntity(workbench))
+end
 
-local function IncreasePlayerXP(source, xpGain, xpType)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if Player then
-        local currentXP = Player.Functions.GetRep(xpType)
-        local newXP = currentXP + xpGain
-        Player.Functions.AddRep(xpType, newXP)
-        TriggerClientEvent('QBCore:Notify', source, string.format(Lang:t('notifications.xpGain'), xpGain, xpType), 'success')
+local function getDistanceInFront(location, distance)
+    local radian = math.rad(location.w + 180)
+    local newLocation = {
+        x = location.x + math.sin(radian) * distance,
+        y = location.y - math.cos(radian) * distance,
+        z = location.z,
+        w = location.w
+    }
+    return vector(newLocation.x, newLocation.y, newLocation.z, newLocation.w)
+end
+
+local function createUseableTables(option)
+    QBCore.Functions.CreateUseableItem(option.item, function(source)
+        local ped = GetPlayerPed(source)
+        local playerCoords = GetEntityCoords(ped)
+        local vector4 = vector4(playerCoords.x, playerCoords.y, playerCoords.z, GetEntityHeading(ped))
+        local fowardVector = getDistanceInFront(vector4, 2)
+        createUseableTable(option.model, fowardVector, source)
+    end)
+end
+
+for _, option in pairs(Config.Benches) do
+    if Config.Settings.UseItem then
+        createUseableTables(option)
     end
+end
+
+local function hasEnoughComponents(src, item, amount, recipes)
+    local Player = QBCore.Functions.GetPlayer(src)
+    local inventory = {}
+    for _, _item in ipairs(Player.PlayerData.items) do
+        inventory[_item.name] = _item.amount
+    end
+
+    local recipe = Config.Recipes[recipes][item].components
+    for component, requiredAmount in pairs(recipe) do
+        if not inventory[component] or inventory[component] < requiredAmount * amount then
+            return false
+        end
+    end
+    return true
+end
+
+local function lostComponent(src, item, amount)
+    exports['qb-inventory']:RemoveItem(src, item, amount, false, 'qb-crafting:server:removeMaterials')
+    TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove')
+end
+
+local function addItem(src, item, amount, components, reward, skill)
+    print(src, item, amount, components, reward, skill)
+    for component, count in pairs(components) do
+        exports['qb-inventory']:RemoveItem(src, component, count, false, 'failed crafting - '..item..' - '..component)
+        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[component], 'remove')
+    end
+    exports['qb-inventory']:AddItem(src, item, amount, false, false, 'item crafted - '..item..' - '..amount)
+    QBCore.Functions.Notify(string.format(src, Lang:t('notifications.craftMessage'), QBCore.Shared.Items[item].label), 'success')
+    addReward(src, reward, skill)
 end
 
 -- Callbacks
-
-QBCore.Functions.CreateCallback('crafting:getPlayerInventory', function(source, cb)
-    local player = QBCore.Functions.GetPlayer(source)
-    if player then
-        cb(player.PlayerData.items)
-    else
-        cb({})
+QBCore.Functions.CreateCallback('qb-crafting:server:getPlayersInventory', function(source, cb)
+    local Player = QBCore.Functions.GetPlayer(source)
+    if not Player then return false end
+    local inventory = {}
+    for _, item in ipairs(Player.PlayerData.items) do
+        inventory[item.name] = item.amount
     end
+    cb(inventory)
 end)
 
--- Events
-RegisterServerEvent('qb-crafting:server:removeMaterials', function(itemName, amount)
+--Events
+RegisterNetEvent('qb-crafting:server:item',function(toggle, args)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if Player then
-        exports['qb-inventory']:RemoveItem(src, itemName, amount, false, 'qb-crafting:server:removeMaterials')
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[itemName], 'remove')
+    if not src or src <= 0 then return print('Error: source not found') end
+    if not toggle then
+        removeItem(src, args.component, args.amount)
     end
-end)
-
-RegisterNetEvent('qb-crafting:server:removeCraftingTable', function(benchType)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
-    exports['qb-inventory']:RemoveItem(src, benchType, 1, false, 'qb-crafting:server:removeCraftingTable')
-    TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[benchType], 'remove')
-    TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.tablePlace'), 'success')
-end)
-
-RegisterNetEvent('qb-crafting:server:addCraftingTable', function(benchType)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
-    if not exports['qb-inventory']:AddItem(src, benchType, 1, false, false, 'qb-crafting:server:addCraftingTable') then return end
-    TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[benchType], 'add')
-end)
-
-RegisterNetEvent('qb-crafting:server:receiveItem', function(craftedItem, requiredItems, amountToCraft, xpGain, xpType)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
-    local canGive = true
-    for _, requiredItem in ipairs(requiredItems) do
-        if not exports['qb-inventory']:RemoveItem(src, requiredItem.item, requiredItem.amount, false, 'qb-crafting:server:receiveItem') then
-            canGive = false
-            return
+    if toggle then
+        if not hasEnoughComponents(src, args.item, args.amount, args.recipes) then
+            return print('Error handler, player can not create item', src, args.item, args.amount)
         end
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[requiredItem.item], 'remove')
-    end
-    if canGive then
-        if not exports['qb-inventory']:AddItem(src, craftedItem, amountToCraft, false, false, 'qb-crafting:server:receiveItem') then return end
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[craftedItem], 'add')
-        TriggerClientEvent('QBCore:Notify', src, string.format(Lang:t('notifications.craftMessage'), QBCore.Shared.Items[craftedItem].label), 'success')
-        IncreasePlayerXP(src, xpGain, xpType)
+        addItem(src, args.item, args.amount, args.components, args.reward, args.skill)
     end
 end)
-
--- Items
-
-for benchType, _ in pairs(Config) do
-    QBCore.Functions.CreateUseableItem(benchType, function(source)
-        TriggerClientEvent('qb-crafting:client:useCraftingTable', source, benchType)
-    end)
-end
