@@ -12,6 +12,7 @@ Config.Settings = {
         Max = 2000, -- Maximum time in milliseconds to craft the item
         Multiplied = true -- Enable or disable the multiplied crafting time, if enabled the crafting time will be multiplied by the amount of items to craft
     },
+    DebugPoly = false, -- Enable or disable the debug poly for the crafting benches
 }
 
 Config.Minigame = function() -- Minigame to use for the skill check, needs to return atleast a true when succesfull

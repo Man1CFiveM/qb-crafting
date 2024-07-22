@@ -15,6 +15,14 @@ Crafting.Open = function(self, option)
     self:OpenMenu(menuItems)
 end
 
+Crafting.Destroy = function(self)
+    self.option = nil
+    self.recipes = nil
+    self.skill = nil
+    self.item = nil
+    self.components = nil
+end
+
 Crafting.CreateSortedMenuItems = function(self, experience)
     local menuItemsCreatable = {}
     local menuItemsNonCreatable = {}

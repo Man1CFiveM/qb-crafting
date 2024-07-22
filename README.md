@@ -24,6 +24,7 @@ The behavior of the crafting system can be customized through the `Config.Settin
 - `LostComponent`: If enabled, the player will lose a component if they fail the skill check or cancel the progress bar.
 - `ImageBasePath`: The base path of the inventory images. Change this if you're using a different inventory system.
 - `CraftingTime`: The time it takes to craft an item. The `Min` and `Max` values are the minimum and maximum time in milliseconds, respectively. If `Multiplied` is enabled, the crafting time will be multiplied by the number of items to craft.
+- `DebugPoly`: The setting in `config.lua` allows you to enable or disable debugging polygons for the crafting benches.
 
 ## Skill Check Minigame
 

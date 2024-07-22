@@ -17,11 +17,12 @@ local function setupTarget(target, targetType)
     })
 end
 
+local isCraftingActive = false
 function PressButtonToOpenCrafting(isActive, option)
+    isCraftingActive = isActive
     CreateThread(function()
         exports['qb-core']:DrawText('Press E to use Crafting', 'left')
-        isActive = isActive or false
-        while isActive do
+        while isCraftingActive do
             if IsControlJustPressed(0, 38) then
                 exports['qb-core']:HideText()
                 Crafting:Open(option)
@@ -30,34 +31,6 @@ function PressButtonToOpenCrafting(isActive, option)
             Wait(1)
         end
     end)
-end
-
-local Zone = {}
-Zone.Create = function(self, option)
-    local comboZone = {}
-    for key, location in ipairs(option.locations) do
-        local workbenchZone = BoxZone:Create(location, 3.0, 5.0, {
-            name = option.model..'_'..tostring(key),
-            debugPoly = true,
-            data = option
-        })
-        comboZone[#comboZone + 1] = workbenchZone
-    end
-
-    local combo = ComboZone:Create(comboZone, {name="combo", debugPoly=true})
-    combo:onPlayerInOut(function(isPointInside, _, zone)
-        if isPointInside then
-            PressButtonToOpenCrafting(true, zone.data)
-            self.option = zone.data
-        else
-            exports['qb-core']:HideText()
-            PressButtonToOpenCrafting()
-        end
-    end)
-end
-
-Zone.Get = function(self)
-    return self.option
 end
 
 RegisterNetEvent('qb-crafting:client:useCraftingBench',function(workbench)
