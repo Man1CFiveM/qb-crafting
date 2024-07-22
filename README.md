@@ -1,5 +1,32 @@
 # qb-crafting
 
+This is a crafting script for the QBCore Framework in FiveM. It allows players to craft items using resources in their inventory.
+
+## Features
+
+- Players can craft items using resources in their inventory.
+- Crafting benches can be accessed in two ways: either by placing a workbench using an item, or by utilizing existing workbenches in the world.
+- Either target or use key can be used to use the work bench
+- Crafting recipes can be easily configured in the config.lua under the Config.Recipes section
+- The crafting menu shows which items can be crafted based on the player's current inventory and skill level.
+
+## Configuration Settings
+
+Crafting recipes are defined in the `Config.Recipes` table in `config.lua`. Each recipe has a name, a list of required components, and a required skill level.
+
+The behavior of the crafting system can be customized through the `Config.Settings` table in `config.lua`. Here's what each setting does:
+
+- `UseItem`: If enabled, the player will have to use an item to open the crafting menu. If disabled, all objects in the `Config.Benches` table can be used to open the crafting menu.
+- `Target`: If enabled, the player will have to target the crafting bench to open the crafting menu. If disabled, the crafting menu can be opened by pressing 'E'.
+- `TargetDistance`: The maximum distance from which the crafting bench can be targeted.
+- `TargetIcon`: The icon to display when targeting the crafting bench.
+- `Minigame`: If enabled, the player will have to complete a skill check to craft the item.
+- `LostComponent`: If enabled, the player will lose a component if they fail the skill check or cancel the progress bar.
+- `ImageBasePath`: The base path of the inventory images. Change this if you're using a different inventory system.
+- `CraftingTime`: The time it takes to craft an item. The `Min` and `Max` values are the minimum and maximum time in milliseconds, respectively. If `Multiplied` is enabled, the crafting time will be multiplied by the number of items to craft.
+
+You can modify these settings to fit your server's needs.
+
 # License
 
     QBCore Framework
