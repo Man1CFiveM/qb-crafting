@@ -25,7 +25,11 @@ The behavior of the crafting system can be customized through the `Config.Settin
 - `ImageBasePath`: The base path of the inventory images. Change this if you're using a different inventory system.
 - `CraftingTime`: The time it takes to craft an item. The `Min` and `Max` values are the minimum and maximum time in milliseconds, respectively. If `Multiplied` is enabled, the crafting time will be multiplied by the number of items to craft.
 
-You can modify these settings to fit your server's needs.
+## Skill Check Minigame
+
+The `Config.Minigame` function in `config.lua` determines the minigame that is used for the skill check when crafting an item. This function needs to return at least `true` when successful.
+Currently, it is set to use the 'easy' skill bar minigame from the `qb-minigames` resource, with '12345' as the sequence to be matched.
+You can replace this function with any minigame of your choice, as long as it returns `true` upon success.
 
 # License
 
