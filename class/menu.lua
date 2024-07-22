@@ -4,7 +4,7 @@ Crafting = {}
 Crafting.Open = function(self, option)
     self.option = option
     self.playerInventory = self:GetPlayerInventory()
-    self.recipes = option.recipes
+    self.recipe = option.recipes
     self.skill = option.skill
     self.item = nil
 
@@ -17,7 +17,7 @@ end
 
 Crafting.Destroy = function(self)
     self.option = nil
-    self.recipes = nil
+    self.recipe = nil
     self.skill = nil
     self.item = nil
     self.components = nil
@@ -27,7 +27,7 @@ Crafting.CreateSortedMenuItems = function(self, experience)
     local menuItemsCreatable = {}
     local menuItemsNonCreatable = {}
 
-    for name, item in pairs(Config.Recipes[self.recipes]) do
+    for name, item in pairs(Config.Recipes[self.recipe]) do
         if experience >= item.required then
             local disable, text = self:EnableItemInMenu(item.components)
             local menuItem = self:CreateMenuItem(name, item, disable, text)
@@ -196,7 +196,7 @@ Crafting.RunProgressbarForCrafting = function(self, amountToCraft, reward, skill
         anim = 'fixing_a_player',
         flags = 16,
     }, {}, {}, function()
-        TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = amountToCraft, reward = reward, skill = skill, recipes = self.recipes})
+        TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = amountToCraft, reward = reward, skill = skill, recipe = self.recipe})
         if not Config.Settings.target then
             PressButtonToOpenCrafting(true, self.option)
         end

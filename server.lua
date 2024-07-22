@@ -41,15 +41,14 @@ for _, option in pairs(Config.Benches) do
     end
 end
 
-local function hasEnoughComponents(src, item, amount, recipes)
+local function hasEnoughComponents(src, item, amount, recipe)
     local Player = QBCore.Functions.GetPlayer(src)
     local inventory = {}
     for _, _item in ipairs(Player.PlayerData.items) do
         inventory[_item.name] = _item.amount
     end
-
-    local recipe = Config.Recipes[recipes][item].components
-    for component, requiredAmount in pairs(recipe) do
+    local components = Config.Recipes[recipe][item].components
+    for component, requiredAmount in pairs(components) do
         if not inventory[component] or inventory[component] < requiredAmount * amount then
             return false
         end
@@ -62,9 +61,8 @@ local function lostComponent(src, item, amount)
     TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove')
 end
 
-local function addItem(src, item, amount, components, reward, skill)
-    print(src, item, amount, components, reward, skill)
-    for component, count in pairs(components) do
+local function addItem(src, item, amount, recipe, reward, skill)
+    for component, count in pairs(Config.Recipes[recipe][item].components) do
         exports['qb-inventory']:RemoveItem(src, component, count, false, 'failed crafting - '..item..' - '..component)
         TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[component], 'remove')
     end
@@ -89,11 +87,10 @@ RegisterNetEvent('qb-crafting:server:item',function(toggle, args)
     local src = source
     if not src or src <= 0 then return print('Error: source not found') end
     if not toggle then
-        lostComponent(src, args.component, args.amount)
-    else
-        if not hasEnoughComponents(src, args.item, args.amount, args.recipes) then
-            return print('Error handler, player can not create item', src, args.item, args.amount)
-        end
-        addItem(src, args.item, args.amount, args.components, args.reward, args.skill)
+        return lostComponent(src, args.component, args.amount)
     end
+    if not hasEnoughComponents(src, args.item, args.amount, args.recipe) then
+        return print('Error handler, player can not create item', src, args.item, args.amount)
+    end
+    addItem(src, args.item, args.amount, args.recipe, args.reward, args.skill)
 end)
