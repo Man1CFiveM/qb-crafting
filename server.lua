@@ -89,9 +89,8 @@ RegisterNetEvent('qb-crafting:server:item',function(toggle, args)
     local src = source
     if not src or src <= 0 then return print('Error: source not found') end
     if not toggle then
-        removeItem(src, args.component, args.amount)
-    end
-    if toggle then
+        lostComponent(src, args.component, args.amount)
+    else
         if not hasEnoughComponents(src, args.item, args.amount, args.recipes) then
             return print('Error handler, player can not create item', src, args.item, args.amount)
         end
