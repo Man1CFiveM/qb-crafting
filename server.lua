@@ -62,7 +62,8 @@ local function lostComponent(src, item, amount)
 end
 
 local function addItem(src, item, amount, recipe, reward, skill)
-    for component, count in pairs(Config.Recipes[recipe][item].components) do
+    local components = Config.Recipes[recipe][item].components * amount
+    for component, count in pairs(components) do
         exports['qb-inventory']:RemoveItem(src, component, count, false, 'failed crafting - '..item..' - '..component)
         TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[component], 'remove')
     end
