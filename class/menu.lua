@@ -8,7 +8,7 @@ Crafting.Open = function(self, option)
     self.item = nil
     self.amount = nil
     self.skill = option.skill
-    local experience = QBCore.Functions.GetPlayerData().metadata[option.skill] or 0
+    local experience = QBCore.Functions.GetPlayerData().metadata.rep[option.skill] or 0
     local menuItems = self:CreateSortedMenuItems(experience)
 
     self.OpenMenu(menuItems)

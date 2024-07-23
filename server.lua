@@ -1,12 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 --Functions
-local function addReward(src, reward, skill)
-    local Player = QBCore.Functions.GetPlayer(src)
-    local currentXP = Player.Functions.GetRep(skill)
-    local newXP = currentXP + reward
-    Player.Functions.AddRep(skill, newXP)
-    QBCore.Functions.Notify(string.format(Lang:t('notifications.xpGain'),source, reward, skill), 'success')
-end
 
 local function createUseableTable(benchType, vector4, src)
     local workbench = CreateObjectNoOffset(joaat(benchType), vector4.x, vector4.y, vector4.z-1, true, true, false)
@@ -41,6 +34,14 @@ for _, option in pairs(Config.Benches) do
     end
 end
 
+local function addReward(src, reward, skill)
+    local Player = QBCore.Functions.GetPlayer(src)
+    local currentXP = Player.Functions.GetRep(skill)
+    local newXP = currentXP + reward
+    Player.Functions.AddRep(skill, newXP)
+    QBCore.Functions.Notify(string.format(Lang:t('notifications.xpGain'),source, reward, skill), 'success')
+end
+
 local function hasEnoughComponents(src, item, amount, recipe)
     local Player = QBCore.Functions.GetPlayer(src)
 
@@ -67,7 +68,7 @@ local function randomLostComponents(src, recipe, item, amount)
     end
 
     local randomComponent = componentKeys[math.random(#componentKeys)]
-    local maxAmount = components[randomComponent]
+    local maxAmount = components[randomComponent] * amount
     local randomAmount = math.random(maxAmount)
 
     exports['qb-inventory']:RemoveItem(src, randomComponent, randomAmount, false, 'qb-crafting:server:removeMaterials')
@@ -75,7 +76,6 @@ local function randomLostComponents(src, recipe, item, amount)
 end
 
 local function addItem(src, item, amount, recipe, skill)
-    print('Adding item', src, item, amount, recipe, skill)
     local itemRecipe = Config.Recipes[recipe][item]
     for component, count in pairs(itemRecipe.components) do
         exports['qb-inventory']:RemoveItem(src, component, count * amount, false, 'Remove component for crafting - '..item..' - '..component)
@@ -106,8 +106,8 @@ RegisterNetEvent('qb-crafting:server:item',function(toggle, args)
         return randomLostComponents(src, args.recipe, args.item, args.amount)
     end
     if not hasEnoughComponents(src, args.item, args.amount, args.recipe) then
-        return print('Error handler, player can not create item', src, args.item, args.amount)
+        QBCore.Debug(args)
+        return print('Error handler, player can not create item', src)
     end
-    QBCore.Debug(args)
     addItem(src, args.item, args.amount, args.recipe, args.skill)
 end)

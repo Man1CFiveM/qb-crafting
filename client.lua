@@ -76,9 +76,6 @@ end
 
 
 
-
-
-
 local function PickupBench(benchType)
     local playerPed = PlayerPedId()
     local propHash = Config[benchType].object

@@ -1,12 +1,12 @@
 Config = {}
 Config.Settings = {
+    ImageBasePath = "nui://qb-inventory/html/images/", -- When using a different inventory, change this to the base path of the inventory images
     UseItem = false, -- Enable or disable the useable item, if enabled the player will have to use the item to open the crafting menu where it will place the crafting bench else use all the objects in the Config.Benches table
     Target = false, -- Enable or disable the target system, if enabled the player will have to target the crafting bench to open the crafting menu else press E to open the crafting menu
     TargetDistance = 2.5, -- Distance to target the crafting bench
     TargetIcon = 'fas fa-tools', -- Icon to display when targeting the crafting bench
     Minigame = true, -- Enable or disable the skill check, if enabled the player will have to complete a skill check to craft the item
     LostComponent = true, -- Enable or disable losing a component, if player fails the skill check or cancels the progresssbar they will lose a component
-    ImageBasePath = "nui://qb-inventory/html/images/", -- When using a different inventory, change this to the base path of the inventory images
     CraftingTime = {
         Min = 1000, -- Minimum time in milliseconds to craft the item
         Max = 2000, -- Maximum time in milliseconds to craft the item
@@ -56,7 +56,7 @@ Config.Recipes = {
             }
         },
         ['gatecrack'] = {
-            required = 110,
+            required = 10,
             reward = 5,
             components = {
                 metalscrap = 10,
