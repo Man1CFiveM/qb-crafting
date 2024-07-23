@@ -5,22 +5,26 @@ Crafting.Open = function(self, option)
     self.option = option
     self.playerInventory = self:GetPlayerInventory()
     self.recipe = option.recipes
-    self.skill = option.skill
     self.item = nil
-
-    local PlayerData = QBCore.Functions.GetPlayerData()
-    local experience = PlayerData.metadata[option.skill] or 0
-
+    self.amount = nil
+    self.skill = option.skill
+    local experience = QBCore.Functions.GetPlayerData().metadata[option.skill] or 0
     local menuItems = self:CreateSortedMenuItems(experience)
-    self:OpenMenu(menuItems)
+
+    self.OpenMenu(menuItems)
 end
 
-Crafting.Destroy = function(self)
-    self.option = nil
-    self.recipe = nil
-    self.skill = nil
-    self.item = nil
-    self.components = nil
+Crafting.OpenMenu = function(menuItems)
+    exports['qb-menu']:openMenu(menuItems)
+end
+
+Crafting.GetPlayerInventory = function(self)
+    local i = promise:new()
+    QBCore.Functions.TriggerCallback('qb-crafting:server:getPlayersInventory', function(inventory)
+        i:resolve(inventory)
+        self.playerInventory = inventory
+    end)
+    return Citizen.Await(i)
 end
 
 Crafting.CreateSortedMenuItems = function(self, experience)
@@ -29,8 +33,8 @@ Crafting.CreateSortedMenuItems = function(self, experience)
 
     for name, item in pairs(Config.Recipes[self.recipe]) do
         if experience >= item.required then
-            local disable, text = self:EnableItemInMenu(item.components)
-            local menuItem = self:CreateMenuItem(name, item, disable, text)
+            local disable, discription = self:EnableItemInMenu(item.components)
+            local menuItem = self:CreateMenuItem(name, disable, discription)
             if disable then
                 menuItemsCreatable[#menuItemsCreatable + 1] = menuItem
             else
@@ -58,35 +62,6 @@ Crafting.CreateSortedMenuItems = function(self, experience)
     return menuItems
 end
 
-Crafting.OpenMenu = function(self, menuItems)
-    exports['qb-menu']:openMenu(menuItems)
-end
-
-Crafting.GetPlayerInventory = function(self)
-    local i = promise:new()
-    QBCore.Functions.TriggerCallback('qb-crafting:server:getPlayersInventory', function(inventory)
-        i:resolve(inventory)
-        self.playerInventory = inventory
-    end)
-    return Citizen.Await(i)
-end
-
-Crafting.CreateMenuItem = function(self,name, item, disable, discription)
-    return {
-        header = QBCore.Shared.Items[name].label,
-        txt = discription,
-        icon = Config.Settings.ImageBasePath .. QBCore.Shared.Items[name].image,
-        params = {
-            isAction = true,
-            event = function()
-                self:CanCreateItem(name, item.components, item.reward, self.skill)
-            end,
-            args = {}
-        },
-        disabled = not disable
-    }
-end
-
 Crafting.EnableItemInMenu = function(self, component)
     local disable = true
     local discription = ''
@@ -100,28 +75,47 @@ Crafting.EnableItemInMenu = function(self, component)
     return disable, discription
 end
 
-Crafting.CanCreateItem = function(self, item, components, reward, type)
-    local amountToCraft = self:AmountOfItemsToCraft()
-    local multipliedComponents = {}
-    for comp, amount in pairs(components) do
-        multipliedComponents[comp] = amount * amountToCraft
-    end
-    if not self:HasEnoughComponents(multipliedComponents) then
+Crafting.CreateMenuItem = function(self,name, disable, discription)
+    return {
+        header = QBCore.Shared.Items[name].label,
+        txt = discription,
+        icon = Config.Settings.ImageBasePath .. QBCore.Shared.Items[name].image,
+        params = {
+            isAction = true,
+            event = function()
+                self:CheckItem(name)
+            end,
+            args = {}
+        },
+        disabled = not disable
+    }
+end
+
+Crafting.CheckItem = function(self, item)
+    local itemRecipe = Config.Recipes[self.recipe][item]
+    self.reward = itemRecipe.reward
+    self.item = item
+    self.amount = self:AmountOfItemsToCraft()
+
+    if not self:HasEnoughComponents() then
         PressButtonToOpenCrafting(true, self.option)
         return QBCore.Functions.Notify(string.format(Lang:t('notifications.notenoughMaterials')), 'error')
     end
-    self.item = item
-    self:CreateItem(multipliedComponents, amountToCraft, reward, type)
+    self:CreateItem()
 end
 
-Crafting.HasEnoughComponents = function(self, multipliedItems)
-    local hasEnough = true
-    for item, amount in pairs(multipliedItems) do
+Crafting.HasEnoughComponents = function(self)
+    local multipliedComponents = {}
+    for comp, amount in pairs(Config.Recipes[self.recipe][self.item].components) do
+        multipliedComponents[comp] = amount * self.amount
+    end
+
+    for item, amount in pairs(multipliedComponents) do
         if not self.playerInventory[item] or self.playerInventory[item] < amount then
-            hasEnough = false
+            return false
         end
     end
-    return hasEnough
+    return true
 end
 
 Crafting.AmountOfItemsToCraft = function(self)
@@ -151,41 +145,27 @@ Crafting.AmountOfItemsToCraft = function(self)
     return amount
 end
 
-Crafting.LostRandomComponents = function(requiredItems)
-    local itemList = {}
-    for item in pairs(requiredItems) do
-        itemList[#itemList + 1] = item
-    end
-    local randomItem = itemList[math.random(#itemList)]
-    local randomAmount = math.random(requiredItems[randomItem])
-    return randomItem, randomAmount
-end
-
-Crafting.FailedCreatingItem = function(self, components)
-    if not Config.Settings.LostComponent then
-        return QBCore.Functions.Notify(string.format(Lang:t('notifications.craftingFailed')), 'error')
-    end
-    local component, amount = Crafting.LostRandomComponents(components)
-    TriggerServerEvent('qb-crafting:server:item', false, {component = component, amount = amount})
-    PressButtonToOpenCrafting(true, self.option)
-    self.item = nil
-    return QBCore.Functions.Notify(string.format(Lang:t('notifications.craftingFailed')), 'error')
-end
-
-Crafting.CreateItem = function(self, components, amountToCraft, reward, skill)
+Crafting.CreateItem = function(self)
     if not Config.Settings.Minigame then
-        return self:RunProgressbarForCrafting(amountToCraft, reward, skill)
+        return self:RunProgressbarForCrafting()
     end
     local success = Config.Minigame()
     if not success then
-        self:FailedCreatingItem(components)
-    end
-    self.components = components
-    self:RunProgressbarForCrafting(amountToCraft, reward, skill)
+        if not Config.Settings.LostComponent then
+            PressButtonToOpenCrafting(true, self.option)
+            return QBCore.Functions.Notify(string.format(Lang:t('notifications.craftingFailed')), 'error')
+        end
+        TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
+        PressButtonToOpenCrafting(true, self.option)
+        end
+    self:RunProgressbarForCrafting()
 end
 
-Crafting.RunProgressbarForCrafting = function(self, amountToCraft, reward, skill)
-    local timer = math.random(Config.Settings.CraftingTime.Min or 1000, Config.Settings.CraftingTime.Max or 2000) * amountToCraft
+Crafting.RunProgressbarForCrafting = function(self)
+    local timer = math.random(Config.Settings.CraftingTime.Min or 1000, Config.Settings.CraftingTime.Max or 2000)
+    if Config.Settings.CraftingTime.Multiplied then
+        timer = timer * self.amount
+    end
     QBCore.Functions.Progressbar('crafting_item', 'Crafting ' .. QBCore.Shared.Items[self.item].label, timer, false, true, {
         disableMovement = true,
         disableCarMovement = true,
@@ -196,7 +176,7 @@ Crafting.RunProgressbarForCrafting = function(self, amountToCraft, reward, skill
         anim = 'fixing_a_player',
         flags = 16,
     }, {}, {}, function()
-        TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = amountToCraft, reward = reward, skill = skill, recipe = self.recipe})
+        TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = self.amount, recipe = self.recipe, skill = self.skill})
         if not Config.Settings.target then
             PressButtonToOpenCrafting(true, self.option)
         end

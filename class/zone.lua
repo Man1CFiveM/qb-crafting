@@ -16,9 +16,7 @@ Zone.Create = function(self, option)
             PressButtonToOpenCrafting(true, zone.data)
             self.option = zone.data
         else
-            print('out the zone')
             exports['qb-core']:HideText()
-            Crafting:Destroy()
             PressButtonToOpenCrafting(false)
         end
     end)

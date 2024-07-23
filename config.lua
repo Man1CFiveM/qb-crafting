@@ -172,7 +172,7 @@ Config.Recipes = {
 
 Config.Benches = {
     [1] = { -- item bench
-        item = 'useableitemtoplaceitembench', -- item to use to open the crafting menu
+        useable = 'useableitemtoplaceitembench', -- item to use to open the crafting menu
         model = "prop_toolchest_05", -- object to use to open the crafting menu
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipes = 'default', -- recipes to use for the crafting bench
@@ -182,12 +182,12 @@ Config.Benches = {
         } -- location of crafting bench for using press button. this can be ignored if Config.Settings.target is enabled
     },
     [2] = { -- attachment bench
-        item = 'useableitemtoplaceattachmentbench',
+        useable = 'useableitemtoplaceattachmentbench',
         model = "prop_tool_bench02_ld",
         skill = 'attachmentcraftingrep',
         recipes = 'attachment',
         locations = {
-            vector3(0, 0, 0)
+            vector3(-25.08, -1082.77, 26.63)
         }
     },
 }
