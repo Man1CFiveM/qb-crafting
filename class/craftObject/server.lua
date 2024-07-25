@@ -34,11 +34,11 @@ CraftObject.Existing = function(self)
     end
 end
 
-CraftObject.Delete = function(self, src)
-    if DoesEntityExist(placed[src]) then
-        DeleteEntity(placed[src])
+CraftObject.Delete = function(self)
+    if DoesEntityExist(placed[self.source]) then
+        DeleteEntity(placed[self.source])
     end
-    placed[src] = nil
+    placed[self.source] = nil
 end
 
 CraftObject.Pickup = function(self, entity)
