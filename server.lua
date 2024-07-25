@@ -1,27 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 --Functions
-local function addReward(src, reward, skill)
-    local Player = QBCore.Functions.GetPlayer(src)
-    Player.Functions.AddRep(skill, reward)
-    QBCore.Functions.Notify(src, string.format(Lang:t('notifications.xpGain'), reward, skill), 'success')
-end
-
-local function hasEnoughComponents(src, item, amount, recipe)
-    local Player = QBCore.Functions.GetPlayer(src)
-
-    local inventory = {}
-    for _, _item in ipairs(Player.PlayerData.items) do
-        inventory[_item.name] = _item.amount
-    end
-
-    local components = Config.Recipes[recipe][item].components
-    for component, requiredAmount in pairs(components) do
-        if not inventory[component] or inventory[component] < requiredAmount * amount then
-            return false
-        end
-    end
-    return true
-end
 
 local function randomLostComponents(src, recipe, item, amount)
     local components = Config.Recipes[recipe][item].components
@@ -38,22 +16,6 @@ local function randomLostComponents(src, recipe, item, amount)
     exports['qb-inventory']:RemoveItem(src, randomComponent, randomAmount, false, 'qb-crafting:server:removeMaterials')
     TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[randomComponent], 'remove')
 end
-
-local function addItem(src, item, amount, recipe, skill)
-    local itemRecipe = Config.Recipes[recipe][item]
-    for component, count in pairs(itemRecipe.components) do
-        exports['qb-inventory']:RemoveItem(src, component, count * amount, false, 'Remove component for crafting - '..item..' - '..component)
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[component], 'remove', count * amount)
-    end
-    exports['qb-inventory']:AddItem(src, item, amount, false, false, 'item crafted - '..item..' - '..amount)
-    TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', amount)
-    QBCore.Functions.Notify(string.format(src, Lang:t('notifications.craftMessage'), QBCore.Shared.Items[item].label), 'success')
-    addReward(src, itemRecipe.reward * amount, skill)
-end
-
-Item = {}
-
--- Item.New 
 
 -- Callbacks
 QBCore.Functions.CreateCallback('qb-crafting:server:getPlayersInventory', function(source, cb)
@@ -73,13 +35,8 @@ RegisterNetEvent('qb-crafting:server:item',function(toggle, args)
     if not toggle then
         return randomLostComponents(src, args.recipe, args.item, args.amount)
     end
-    if not hasEnoughComponents(src, args.item, args.amount, args.recipe) then
-        return print('Error handler, player can not create item', src)
-    end
-    addItem(src, args.item, args.amount, args.recipe, args.skill)
+    Item:Add(src, args.item, args.amount, args.recipe, args.skill)
 end)
-
-
 
 for _, craft in pairs(Config.Crafting) do
     if craft.useitem then

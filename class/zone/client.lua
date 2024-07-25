@@ -25,7 +25,7 @@ Zone.Create = function(self, option)
 end
 
 Zone.UseableItem = function(self, option)
-    QBCore.Debug(option)
+    -- QBCore.Debug(option)
     -- self.option
 end
 

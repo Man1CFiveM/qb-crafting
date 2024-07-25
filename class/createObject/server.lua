@@ -1,7 +1,7 @@
 local placed = {}
 CreateObject = {}
 
-CreateObject.Create = function(self, src, model)
+CreateObject.New = function(self, src, model)
     self.source = src
     self.model = model
     self.distance = Config.Settings.Distance
