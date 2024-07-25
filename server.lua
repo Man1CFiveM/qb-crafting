@@ -51,6 +51,10 @@ local function addItem(src, item, amount, recipe, skill)
     addReward(src, itemRecipe.reward * amount, skill)
 end
 
+Item = {}
+
+-- Item.New 
+
 -- Callbacks
 QBCore.Functions.CreateCallback('qb-crafting:server:getPlayersInventory', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)

@@ -1,21 +1,12 @@
 local placed = {}
 CreateObject = {}
 
-CreateObject.New = function(self, src, model)
+CreateObject.Create = function(self, src, model)
     self.source = src
     self.model = model
-    self.x = nil
-    self.y = nil
-    self.z = nil
-    self.w = nil
     self.distance = Config.Settings.Distance
-    self.objects = {}--This is just for testing
+    self.objects = {} --This is just for testing
     self:ForwardVector()
-    self:Create()
-    return self.netid
-end
-
-CreateObject.Create = function(self)
     self:Existing()
     self.netid = CreateObjectNoOffset(joaat(self.model), self.x, self.y, self.z-1, true, true, false)
     SetEntityHeading(self.netid, self.w)
@@ -37,7 +28,7 @@ end
 
 CreateObject.Existing = function(self)
     if placed[self.source] then
-        self.Delete(self, self.source)
+        self:Delete(self.source)
     end
 end
 
