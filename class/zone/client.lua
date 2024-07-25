@@ -1,4 +1,6 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 Zone = {}
+
 Zone.Create = function(self, option)
     local comboZone = {}
     for key, location in ipairs(option.locations) do
@@ -20,6 +22,11 @@ Zone.Create = function(self, option)
             PressButtonToOpenCrafting(false)
         end
     end)
+end
+
+Zone.UseableItem = function(self, option)
+    QBCore.Debug(option)
+    -- self.option
 end
 
 Zone.Get = function(self)

@@ -1,45 +1,9 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 --Functions
-
-local function createUseableTable(benchType, vector4, src)
-    local workbench = CreateObjectNoOffset(joaat(benchType), vector4.x, vector4.y, vector4.z-1, true, true, false)
-    SetEntityHeading(workbench, vector4.w)
-    TriggerClientEvent('qb-crafting:client:useCraftingBench', src, benchType, NetworkGetNetworkIdFromEntity(workbench))
-end
-
-local function getDistanceInFront(location, distance)
-    local radian = math.rad(location.w + 180)
-    local newLocation = {
-        x = location.x + math.sin(radian) * distance,
-        y = location.y - math.cos(radian) * distance,
-        z = location.z,
-        w = location.w
-    }
-    return vector(newLocation.x, newLocation.y, newLocation.z, newLocation.w)
-end
-
-local function createUseableTables(option)
-    QBCore.Functions.CreateUseableItem(option.item, function(source)
-        local ped = GetPlayerPed(source)
-        local playerCoords = GetEntityCoords(ped)
-        local vector4 = vector4(playerCoords.x, playerCoords.y, playerCoords.z, GetEntityHeading(ped))
-        local fowardVector = getDistanceInFront(vector4, 2)
-        createUseableTable(option.model, fowardVector, source)
-    end)
-end
-
-for _, option in pairs(Config.Benches) do
-    if Config.Settings.UseItem then
-        createUseableTables(option)
-    end
-end
-
 local function addReward(src, reward, skill)
     local Player = QBCore.Functions.GetPlayer(src)
-    local currentXP = Player.Functions.GetRep(skill)
-    local newXP = currentXP + reward
-    Player.Functions.AddRep(skill, newXP)
-    QBCore.Functions.Notify(string.format(Lang:t('notifications.xpGain'),source, reward, skill), 'success')
+    Player.Functions.AddRep(skill, reward)
+    QBCore.Functions.Notify(src, string.format(Lang:t('notifications.xpGain'), reward, skill), 'success')
 end
 
 local function hasEnoughComponents(src, item, amount, recipe)
@@ -84,7 +48,7 @@ local function addItem(src, item, amount, recipe, skill)
     exports['qb-inventory']:AddItem(src, item, amount, false, false, 'item crafted - '..item..' - '..amount)
     TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', amount)
     QBCore.Functions.Notify(string.format(src, Lang:t('notifications.craftMessage'), QBCore.Shared.Items[item].label), 'success')
-    addReward(src, itemRecipe.reward, skill)
+    addReward(src, itemRecipe.reward * amount, skill)
 end
 
 -- Callbacks
@@ -92,7 +56,7 @@ QBCore.Functions.CreateCallback('qb-crafting:server:getPlayersInventory', functi
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return false end
     local inventory = {}
-    for _, item in ipairs(Player.PlayerData.items) do
+    for _, item in pairs(Player.PlayerData.items) do
         inventory[item.name] = item.amount
     end
     cb(inventory)
@@ -106,8 +70,18 @@ RegisterNetEvent('qb-crafting:server:item',function(toggle, args)
         return randomLostComponents(src, args.recipe, args.item, args.amount)
     end
     if not hasEnoughComponents(src, args.item, args.amount, args.recipe) then
-        QBCore.Debug(args)
         return print('Error handler, player can not create item', src)
     end
     addItem(src, args.item, args.amount, args.recipe, args.skill)
 end)
+
+
+
+for _, craft in pairs(Config.Crafting) do
+    if craft.useitem then
+        QBCore.Functions.CreateUseableItem(craft.useitem.item, function(source)
+            local netId = CreateObject:New(source, craft.useitem.model)
+            TriggerClientEvent('qb-crafting:client:use_create_item', source, {netid = NetworkGetNetworkIdFromEntity(netId), option = craft})
+        end)
+    end
+end

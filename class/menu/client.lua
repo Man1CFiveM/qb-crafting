@@ -1,10 +1,10 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
-Crafting = {}
-Crafting.Open = function(self, option)
+Menu = {}
+Menu.Open = function(self, option)
     self.option = option
     self.playerInventory = self:GetPlayerInventory()
-    self.recipe = option.recipes
+    self.recipe = option.recipe
     self.item = nil
     self.amount = nil
     self.skill = option.skill
@@ -14,11 +14,11 @@ Crafting.Open = function(self, option)
     self.OpenMenu(menuItems)
 end
 
-Crafting.OpenMenu = function(menuItems)
+Menu.OpenMenu = function(menuItems)
     exports['qb-menu']:openMenu(menuItems)
 end
 
-Crafting.GetPlayerInventory = function(self)
+Menu.GetPlayerInventory = function(self)
     local i = promise:new()
     QBCore.Functions.TriggerCallback('qb-crafting:server:getPlayersInventory', function(inventory)
         i:resolve(inventory)
@@ -27,10 +27,9 @@ Crafting.GetPlayerInventory = function(self)
     return Citizen.Await(i)
 end
 
-Crafting.CreateSortedMenuItems = function(self, experience)
+Menu.CreateSortedMenuItems = function(self, experience)
     local menuItemsCreatable = {}
     local menuItemsNonCreatable = {}
-
     for name, item in pairs(Config.Recipes[self.recipe]) do
         if experience >= item.required then
             local disable, discription = self:EnableItemInMenu(item.components)
@@ -62,7 +61,7 @@ Crafting.CreateSortedMenuItems = function(self, experience)
     return menuItems
 end
 
-Crafting.EnableItemInMenu = function(self, component)
+Menu.EnableItemInMenu = function(self, component)
     local disable = true
     local discription = ''
     for item, amount in pairs(component) do
@@ -75,7 +74,7 @@ Crafting.EnableItemInMenu = function(self, component)
     return disable, discription
 end
 
-Crafting.CreateMenuItem = function(self,name, disable, discription)
+Menu.CreateMenuItem = function(self,name, disable, discription)
     return {
         header = QBCore.Shared.Items[name].label,
         txt = discription,
@@ -91,7 +90,7 @@ Crafting.CreateMenuItem = function(self,name, disable, discription)
     }
 end
 
-Crafting.CheckItem = function(self, item)
+Menu.CheckItem = function(self, item)
     local itemRecipe = Config.Recipes[self.recipe][item]
     self.reward = itemRecipe.reward
     self.item = item
@@ -104,7 +103,7 @@ Crafting.CheckItem = function(self, item)
     self:CreateItem()
 end
 
-Crafting.HasEnoughComponents = function(self)
+Menu.HasEnoughComponents = function(self)
     local multipliedComponents = {}
     for comp, amount in pairs(Config.Recipes[self.recipe][self.item].components) do
         multipliedComponents[comp] = amount * self.amount
@@ -118,7 +117,7 @@ Crafting.HasEnoughComponents = function(self)
     return true
 end
 
-Crafting.AmountOfItemsToCraft = function(self)
+Menu.AmountOfItemsToCraft = function(self)
     local dialog = exports['qb-input']:ShowInput({
         header = string.format(Lang:t('menus.entercraftAmount')),
         submitText = 'Confirm',
@@ -145,7 +144,7 @@ Crafting.AmountOfItemsToCraft = function(self)
     return amount
 end
 
-Crafting.CreateItem = function(self)
+Menu.CreateItem = function(self)
     if not Config.Settings.Minigame then
         return self:RunProgressbarForCrafting()
     end
@@ -155,13 +154,13 @@ Crafting.CreateItem = function(self)
             PressButtonToOpenCrafting(true, self.option)
             return QBCore.Functions.Notify(string.format(Lang:t('notifications.craftingFailed')), 'error')
         end
-        TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
         PressButtonToOpenCrafting(true, self.option)
+        return TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
         end
     self:RunProgressbarForCrafting()
 end
 
-Crafting.RunProgressbarForCrafting = function(self)
+Menu.RunProgressbarForCrafting = function(self)
     local timer = math.random(Config.Settings.CraftingTime.Min or 1000, Config.Settings.CraftingTime.Max or 2000)
     if Config.Settings.CraftingTime.Multiplied then
         timer = timer * self.amount

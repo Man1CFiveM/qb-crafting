@@ -1,20 +1,32 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
-local function setupTarget(target, targetType)
+local function setupTarget(option, targetType)
     local addFunction = targetType == 'entity' and exports['qb-target'].AddTargetEntity or exports['qb-target'].AddTargetModel
-    addFunction(target, {
+    addFunction(targetType, option.netid, {
         options = {
-            {
-                icon = 'fas fa-tools',
-                label = string.format(Lang:t('menus.header')),
-                action = function()
-                    --still need to apply the options for the menu
-                    Crafting:Open()
-                end
+                {
+                    num = 1,
+                    icon = option.useitem.icon,
+                    label = option.useitem.label,
+                    action = function(entity)
+                        if entity == option.netid then
+                            Menu:Open(option)
+                        end
+                    end,
+                },
+                {
+                    num = 2,
+                    icon = 'fa-solid fa-trash',
+                    label = 'Pickup',
+                    action = function(entity)
+                        if entity == option.netid then
+                            print('pickup crafting item')
+                        end
+                    end,
             }
-        },
-        distance = 2.5
-    })
+            },
+            distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
+        })
 end
 
 local isCraftingActive = false
@@ -25,7 +37,8 @@ function PressButtonToOpenCrafting(isActive, option)
         while isCraftingActive do
             if IsControlJustPressed(0, 38) then
                 exports['qb-core']:HideText()
-                Crafting:Open(option)
+                Menu:Open(option)
+                Menu:IsOpen(true)
                 break
             end
             Wait(1)
@@ -33,45 +46,48 @@ function PressButtonToOpenCrafting(isActive, option)
     end)
 end
 
-RegisterNetEvent('qb-crafting:client:useCraftingBench',function(workbench)
+
+RegisterNetEvent('qb-crafting:client:use_create_item',function(option)
     local time = GetGameTimer()
-    while not NetworkDoesEntityExistWithNetworkId(workbench) do
+    while not NetworkDoesEntityExistWithNetworkId(option.netid) do
         if GetGameTimer() - time > 1000 then
-            return print('Error handler - NetiD: ',workbench)
+            return print('Error handler - NetiD: ',option.netid)
         end
         Wait(1)
     end
-    setupTarget(NetToObj(workbench), 'entity')
+    option.option.netid = NetToEnt(option.netid)
+    if option.option.useitem.target then
+        return setupTarget(option.option, 'entity')
+    end
+    Zone:UseableItem(option.option)
+    -- setupTarget(option, 'entity')
 end)
 
-AddEventHandler('qb-menu:client:menuClosed', function()
-    PressButtonToOpenCrafting(true, Zone:Get())
-end)
+-- AddEventHandler('qb-menu:client:menuClosed', function()
+--     if Menu:IsOpen() then
+--         PressButtonToOpenCrafting(true, Zone:Get())
+--     end
+-- end)
 
-local function setupUsingCraftingTable(option)
-    if not Config.Settings.target then
-        return Zone:Create(option)
-    end
-    setupTarget(option.model, 'model')
-end
+-- local function setupUsingCraftingTable(option)
+--     if not Config.Settings.target then
+--         return Zone:Create(option)
+--     end
+--     setupTarget(option.model, 'model')
+-- end
 
-if not Config.Settings.UseItem then
-    for key, option in ipairs(Config.Benches) do
-        setupUsingCraftingTable(option)
-    end
-end
+-- if not Config.Settings.UseItem then
+--     for key, option in ipairs(Config.Benches) do
+--         setupUsingCraftingTable(option)
+--     end
+-- end
 
-
-
-
-
-
-
-
-
-
-
-
+-- for _, crafting in pairs(Config.Benches) do
+--     if crafting.useitem then
+--         print('useitem')
+--         -- createUseableTables(option)
+--     end
+-- end
 
 
 
