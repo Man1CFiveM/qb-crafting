@@ -10,12 +10,13 @@ Menu.Open = function(self, option)
     self.skill = option.skill
     local experience = QBCore.Functions.GetPlayerData().metadata.rep[option.skill] or 0
     local menuItems = self:CreateSortedMenuItems(experience)
-
-    self.OpenMenu(menuItems)
+    self.menuItems = menuItems
+    self:OpenMenu()
+    return self
 end
 
-Menu.OpenMenu = function(menuItems)
-    exports['qb-menu']:openMenu(menuItems)
+Menu.OpenMenu = function(self)
+    exports['qb-menu']:openMenu(self.menuItems)
 end
 
 Menu.GetPlayerInventory = function(self)

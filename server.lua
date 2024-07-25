@@ -26,15 +26,15 @@ RegisterNetEvent('qb-crafting:server:pickup_bench', function(netId)
     if not src or src <= 0 then return print('Error: source not found') end
     local entity = NetworkGetEntityFromNetworkId(netId)
     if not DoesEntityExist(entity) then return print('Error: entity not found') end
-    CraftObject:New(src):Pickup(entity)
+    Workbench:New(src):Pickup(entity)
 end)
 
 for _, craft in pairs(Config.Crafting) do
     if craft.useitem then
         QBCore.Functions.CreateUseableItem(craft.useitem.item, function(source)
-            local workbench = CraftObject:New(source, craft.useitem.model):Create()
-            print("workbench : ",workbench)
-            TriggerClientEvent('qb-crafting:client:use_create_item', source, {netid = NetworkGetNetworkIdFromEntity(workbench), option = craft})
+            local workbench = Workbench:New(source, craft.useitem.model, craft.useitem.item, craft.recipe, craft.skill):Create()
+            craft.netid = NetworkGetNetworkIdFromEntity(workbench)
+            TriggerClientEvent('qb-crafting:client:use_create_item', source, craft)
         end)
     end
 end

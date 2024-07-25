@@ -9,7 +9,7 @@ local function setupTarget(option, targetType)
                     icon = option.useitem.icon,
                     label = option.useitem.label,
                     action = function(entity)
-                        if entity == option.netid then
+                        if entity == NetToEnt(option.netid) then
                             Menu:Open(option)
                         end
                     end,
@@ -20,20 +20,18 @@ local function setupTarget(option, targetType)
                     label = 'Pickup',
                     action = function(entity)
                         if entity == option.netid then
-                            local playerPed = PlayerPedId()
                             local animDict = "pickup_object"
-                            local animName = "pickup_low"
                             RequestAnimDict(animDict)
                             while not HasAnimDictLoaded(animDict) do
                                 Wait(0)
                             end
-                            TaskPlayAnim(playerPed, animDict, animName, 8.0, -8.0, -1, 0, 0, false, false, false)
+                            TaskPlayAnim(PlayerPedId(), animDict, "pickup_low", 8.0, -8.0, -1, 0, 0, false, false, false)
                             TriggerServerEvent('qb-crafting:server:pickup_bench', NetworkGetNetworkIdFromEntity(entity))
                         end
                     end,
             }
             },
-            distance = Config.Settings.TargetDistance, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
+            distance = Config.Settings.TargetDistance,
         })
 end
 
@@ -62,11 +60,13 @@ RegisterNetEvent('qb-crafting:client:use_create_item',function(option)
         end
         Wait(1)
     end
-    option.option.netid = NetToEnt(option.netid)
-    if option.option.useitem.target then
-        return setupTarget(option.option, 'entity')
+    if option.useitem.target then
+        return setupTarget(option, 'entity')
     end
-    Zone:UseableItem(option.option)
+    local entity = NetToEnt(option.netid)
+    local coords = GetEntityCoords(entity)
+    local heading = GetEntityHeading(entity)
+    Zone:New(vector4(coords.x, coords.y, coords.z, heading), option):UseableItem()
     -- setupTarget(option, 'entity')
 end)
 
