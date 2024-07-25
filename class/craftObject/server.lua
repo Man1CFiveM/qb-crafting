@@ -30,7 +30,7 @@ end
 
 CraftObject.Existing = function(self)
     if placed[self.source] then
-        self:Delete(self.source)
+        self:Delete()
     end
 end
 
