@@ -20,12 +20,20 @@ local function setupTarget(option, targetType)
                     label = 'Pickup',
                     action = function(entity)
                         if entity == option.netid then
-                            print('pickup crafting item')
+                            local playerPed = PlayerPedId()
+                            local animDict = "pickup_object"
+                            local animName = "pickup_low"
+                            RequestAnimDict(animDict)
+                            while not HasAnimDictLoaded(animDict) do
+                                Wait(0)
+                            end
+                            TaskPlayAnim(playerPed, animDict, animName, 8.0, -8.0, -1, 0, 0, false, false, false)
+                            TriggerServerEvent('qb-crafting:server:pickup_bench', NetworkGetNetworkIdFromEntity(entity))
                         end
                     end,
             }
             },
-            distance = 2.5, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
+            distance = Config.Settings.TargetDistance, -- This is the distance for you to be at for the target to turn blue, this is in GTA units and has to be a float value
         })
 end
 
@@ -45,7 +53,6 @@ function PressButtonToOpenCrafting(isActive, option)
         end
     end)
 end
-
 
 RegisterNetEvent('qb-crafting:client:use_create_item',function(option)
     local time = GetGameTimer()

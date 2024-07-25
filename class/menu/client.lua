@@ -156,7 +156,7 @@ Menu.CreateItem = function(self)
         end
         PressButtonToOpenCrafting(true, self.option)
         return TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
-        end
+    end
     self:RunProgressbarForCrafting()
 end
 

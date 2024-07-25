@@ -1,21 +1,23 @@
 local placed = {}
-CreateObject = {}
+CraftObject = {}
 
-CreateObject.New = function(self, src, model)
+CraftObject.New = function(self, src, model)
     self.source = src
     self.model = model
     self.distance = Config.Settings.Distance
-    self.objects = {} --This is just for testing
-    self:ForwardVector()
-    self:Existing()
-    self.netid = CreateObjectNoOffset(joaat(self.model), self.x, self.y, self.z-1, true, true, false)
-    SetEntityHeading(self.netid, self.w)
-    placed[self.source] = self.netid
-    self.objects[self.source] = self.netid
-    return self.netid
+    return self
 end
 
-CreateObject.ForwardVector = function(self)
+CraftObject.Create = function(self)
+    self:ForwardVector()
+    self:Existing()
+    local workbench = CreateObjectNoOffset(joaat(self.model), self.x, self.y, self.z-1, true, true, false)
+    SetEntityHeading(self.netid, self.w)
+    placed[self.source] = workbench
+    return workbench
+end
+
+CraftObject.ForwardVector = function(self)
     local ped = GetPlayerPed(self.source)
     local playerCoords = GetEntityCoords(ped)
     local heading = GetEntityHeading(ped)
@@ -26,15 +28,23 @@ CreateObject.ForwardVector = function(self)
     self.w = heading
 end
 
-CreateObject.Existing = function(self)
+CraftObject.Existing = function(self)
     if placed[self.source] then
         self:Delete(self.source)
     end
 end
 
-CreateObject.Delete = function(self, src)
+CraftObject.Delete = function(self, src)
     if DoesEntityExist(placed[src]) then
         DeleteEntity(placed[src])
     end
     placed[src] = nil
+end
+
+CraftObject.Pickup = function(self, entity)
+    if not placed[self.source] == entity then return print(self.source, entity)end
+    if DoesEntityExist(placed[self.source]) then
+        DeleteEntity(placed[self.source])
+        placed[self.source] = nil
+    end
 end
