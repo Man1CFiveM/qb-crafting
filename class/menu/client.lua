@@ -1,22 +1,30 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-
+local isMenuOpen = false
 Menu = {}
-Menu.Open = function(self, option)
-    self.option = option
-    self.playerInventory = self:GetPlayerInventory()
-    self.recipe = option.recipe
-    self.item = nil
+Menu.New = function(self, recipe, item, skill)
+    self.recipe = recipe
+    self.item = item
+    self.skill = skill
     self.amount = nil
-    self.skill = option.skill
-    local experience = QBCore.Functions.GetPlayerData().metadata.rep[option.skill] or 0
-    local menuItems = self:CreateSortedMenuItems(experience)
-    self.menuItems = menuItems
+    self.isOpen = false
+    self.playerInventory = self:GetPlayerInventory()
+    self.experience = QBCore.Functions.GetPlayerData().metadata.rep[self.skill] or 0
+    self.menuItems = self:CreateSortedMenuItems()
     self:OpenMenu()
     return self
 end
 
 Menu.OpenMenu = function(self)
+    self:IsOpen(true)
     exports['qb-menu']:openMenu(self.menuItems)
+end
+
+Menu.IsOpen = function(self, isOpen)
+    isMenuOpen = isOpen
+end
+
+Menu.Get = function(self)
+    return isMenuOpen
 end
 
 Menu.GetPlayerInventory = function(self)
@@ -28,11 +36,11 @@ Menu.GetPlayerInventory = function(self)
     return Citizen.Await(i)
 end
 
-Menu.CreateSortedMenuItems = function(self, experience)
+Menu.CreateSortedMenuItems = function(self)
     local menuItemsCreatable = {}
     local menuItemsNonCreatable = {}
     for name, item in pairs(Config.Recipes[self.recipe]) do
-        if experience >= item.required then
+        if self.experience >= item.required then
             local disable, discription = self:EnableItemInMenu(item.components)
             local menuItem = self:CreateMenuItem(name, disable, discription)
             if disable then

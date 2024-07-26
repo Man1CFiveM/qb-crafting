@@ -1,3 +1,4 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 local placed = {}
 Workbench = {}
 
@@ -56,6 +57,7 @@ Workbench.Pickup = function(self, entity)
         local workbenchState = Entity(entity).state
         exports['qb-inventory']:AddItem(self.source, workbenchState.item, 1, false, false, 'pickup workbench from crafting')
         TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[workbenchState.item].item, 'add', 1)
+        QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.pickupworkbench')),workbenchState.item, "primary")
         placed[self.source] = nil
     end
 end
