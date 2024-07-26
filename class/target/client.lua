@@ -1,5 +1,6 @@
 Target = {}
 Target.New = function(self, netid, model, icon, label, item, recipe, skill)
+    print(netid, model, icon, label, item, recipe, skill)
     self.netid = netid
     self.model = model
     self.icon = icon
@@ -19,9 +20,9 @@ Target.Entity = function(self)
                     icon = self.icon,
                     label = self.label,
                     action = function(entity)
-                        if entity == NetToEnt(self.netid) then
+                        -- if entity == NetToEnt(self.netid) then TODO just need to build a check in here, just use Entity
                             Menu:New(self.recipe, self.item, self.skill):OpenMenu()
-                        end
+                        -- end
                     end,
                 },
                 {

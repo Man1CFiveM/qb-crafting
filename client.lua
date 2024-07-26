@@ -54,13 +54,25 @@ for _, craft in pairs(Config.Crafting) do
             Target:New(nil, craft.object.model, craft.object.icon, craft.object.label, nil, craft.recipe, craft.skill):Model()
         end
         if craft.object.location then
-            QBCore.Debug(craft)
             Zone:New(nil, craft.object.location, nil, craft.recipe, nil, craft.skill):Combo()
         end
     end
 end
 
-
+AddStateBagChangeHandler("crafting", nil, function(bagName, _, bag)
+    QBCore.Debug(bag)
+    print(bag.icon)
+    local entity = GetEntityFromStateBagName(bagName)
+    if entity == 0 then return end
+    while not HasCollisionLoadedAroundEntity(entity) do
+        if not DoesEntityExist(entity) then return end
+        Wait(100)
+    end
+    SetEntityInvincible(entity, true)
+    FreezeEntityPosition(entity, true)
+    TaskSetBlockingOfNonTemporaryEvents(entity, true)
+    Target:New(entity, nil, bag.icon, bag.label, nil, bag.recipe, bag.skill):Entity()
+end)
 
 
 
@@ -84,16 +96,16 @@ end
 --     end
 -- end
 
-CreateThread(function()
-    local model = 'prop_toolchest_03_l2'
-    RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(0)
-    end
-    CreateObject(joaat(model), 1091.72, 3072.62, 39.48, true, true, true)
-    CreateObject(joaat(model), 1085.39, 3071.17, 39.53, true, true, true)
-    CreateObject(joaat(model), 1077.57, 3068.95, 39.79, true, true, true)
-end)
+-- CreateThread(function()
+--     local model = 'prop_toolchest_03_l2'
+--     RequestModel(model)
+--     while not HasModelLoaded(model) do
+--         Wait(0)
+--     end
+--     CreateObject(joaat(model), 1091.72, 3072.62, 39.48, true, true, true)
+--     CreateObject(joaat(model), 1085.39, 3071.17, 39.53, true, true, true)
+--     CreateObject(joaat(model), 1077.57, 3068.95, 39.79, true, true, true)
+-- end)
 
 
 local function PickupBench(benchType)

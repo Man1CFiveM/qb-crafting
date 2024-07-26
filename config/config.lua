@@ -82,27 +82,27 @@ Config.Crafting = {
     --     recipe = 'default', -- recipe to use for the crafting bench
     -- },
 
-    [6] = {
+    [5] = {
         ped = {
             target = true, -- true sets the target system, false or removed will use the press a button system
-            location = vector4(-13.94, -1086.91, 26.67, 0.0),
-            -- location = {
-            --     vector4(-13.94, -1086.91, 26.67, 0.0),
-            --     vector4(-13.94, -1086.91, 26.67, 0.0)
-            -- },
-            model = 'a_m_m_hillbilly_01',
+            model = 'A_M_Y_BusiCas_01',
+            icon = 'fas fa-tools', -- icon to display when targeting the object
+            label = 'Crafting Bench - Using Ped Target',  -- label to display when targeting the object
+            location = {
+                vector4(1063.96, 3091.41, 41.06, 12.84),
+                vector4(1076.11, 3095.08, 40.58, 96.96)
+            },
         },
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipe = 'default', -- recipe to use for the crafting bench
     },
-    [8] = {
+    [6] = {
         ped = {
-            location = vector4(-13.94, -1086.91, 26.67, 0.0), -- a single location or a list can be passed
-            model = 'a_m_m_hillbilly_01',
-            -- location = {
-            --     vector4(-13.94, -1086.91, 26.67, 0.0),
-            --     vector4(-13.94, -1086.91, 26.67, 0.0)
-            -- },
+            model = 'A_F_Y_Vinewood_04',
+            location = {
+                vector4(1066.29, 3079.34, 41.06, 5.99),
+                vector4(1082.41, 3083.88, 40.41, 351.55)
+            },
         },
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipe = 'default', -- recipe to use for the crafting bench

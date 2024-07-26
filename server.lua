@@ -29,12 +29,20 @@ RegisterNetEvent('qb-crafting:server:pickup_bench', function(netId)
     Workbench:New(src):Pickup(entity)
 end)
 
+local function setupCreateUsableItem(craft)
+    QBCore.Functions.CreateUseableItem(craft.useitem.item, function(source)
+        local workbench = Workbench:New(source, craft.useitem.model, craft.useitem.item, craft.recipe, craft.skill):Create()
+        craft.netid = NetworkGetNetworkIdFromEntity(workbench)
+        TriggerClientEvent('qb-crafting:client:use_create_item', source, craft)
+    end)
+end
+
 for _, craft in pairs(Config.Crafting) do
     if craft.useitem then
-        QBCore.Functions.CreateUseableItem(craft.useitem.item, function(source)
-            local workbench = Workbench:New(source, craft.useitem.model, craft.useitem.item, craft.recipe, craft.skill):Create()
-            craft.netid = NetworkGetNetworkIdFromEntity(workbench)
-            TriggerClientEvent('qb-crafting:client:use_create_item', source, craft)
-        end)
+        setupCreateUsableItem(craft)
+    end
+    if craft.ped then
+        QBCore.Debug(craft)
+        Ped:New(craft.ped.model, craft.ped.location, craft.skill, craft.recipe, craft.ped.label, craft.ped.icon, craft.ped.target or false):Spawn()
     end
 end
