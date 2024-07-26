@@ -37,7 +37,7 @@ end
 Zone.UseableItem = function(self)
     self.zone = CircleZone:Create(vector3(self.coords.x, self.coords.y, self.coords.z), 3.0, {
         name = "workbenchzone" ,
-        debugPoly = true,
+        debugPoly = Config.Settings.DebugPoly,
         useZ = true
     })
     self.zone:onPlayerInOut(function(isPointInside)
