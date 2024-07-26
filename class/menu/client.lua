@@ -15,16 +15,8 @@ Menu.New = function(self, recipe, item, skill)
 end
 
 Menu.OpenMenu = function(self)
-    self:IsOpen(true)
+    isMenuOpen = true
     exports['qb-menu']:openMenu(self.menuItems)
-end
-
-Menu.IsOpen = function(self, isOpen)
-    isMenuOpen = isOpen
-end
-
-Menu.Get = function(self)
-    return isMenuOpen
 end
 
 Menu.GetPlayerInventory = function(self)
@@ -189,9 +181,13 @@ Menu.RunProgressbarForCrafting = function(self)
             PressButtonToOpenCrafting(true, self.option)
         end
     end, function()
-        self:FailedCreatingItem(self.components)
+        TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
         if not Config.Settings.target then
             PressButtonToOpenCrafting(true, self.option)
         end
     end)
+end
+
+Menu.Get = function(self)
+    return isMenuOpen
 end

@@ -1,6 +1,5 @@
 local peds = {}
 Ped = {}
-
 Ped.New = function(self, model, coords, skill, recipe, label, icon, target)
     self.model = model
     self.coords = coords

@@ -29,7 +29,7 @@ RegisterNetEvent('qb-crafting:server:pickup_bench', function(netId)
     Workbench:New(src):Pickup(entity)
 end)
 
-local function setupCreateUsableItem(craft)
+local function createUsableItem(craft)
     QBCore.Functions.CreateUseableItem(craft.useitem.item, function(source)
         local workbench = Workbench:New(source, craft.useitem.model, craft.useitem.item, craft.recipe, craft.skill):Create()
         craft.netid = NetworkGetNetworkIdFromEntity(workbench)
@@ -39,7 +39,7 @@ end
 
 for _, craft in pairs(Config.Crafting) do
     if craft.useitem then
-        setupCreateUsableItem(craft)
+        createUsableItem(craft)
     end
     if craft.ped then
         QBCore.Debug(craft)

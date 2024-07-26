@@ -13,7 +13,7 @@ end
 
 Item.Add = function(self)
     if not self:HasEnoughComponents() then
-        return print('Error handler, player can not create item', self.source)
+        return print('Error handler, player can not create item', self.source) --TODO proper error handling. at this stage player should have enough components
     end
     self:RemoveComponents()
     exports['qb-inventory']:AddItem(self.source, self.item, self.amount, false, false, 'item crafted - '..self.item..' - '..self.amount)
@@ -48,7 +48,7 @@ Item.HasEnoughComponents = function(self)
     return true
 end
 
-Item.RandomLostComponents = function(self)
+Item.RandomLostComponents = function(self) --TODO Do we need to do any checks here?
     local components = Config.Recipes[self.recipe][self.item].components
 
     local componentKeys = {}

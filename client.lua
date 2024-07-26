@@ -1,14 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
-CreateThread(function()
-    local prop = 'prop_toolchest_01'
-    RequestModel(prop)
-    while not HasModelLoaded(prop) do
-        Wait(0)
-    end
-    CreateObject(joaat(prop), 1101.73, 3074.53, 39.49, true, true, true)
-end)
-
 local isCraftingActive = false
 function PressButtonToOpenCrafting(isActive, recipe, item, skill)
     isCraftingActive = isActive
@@ -60,8 +51,6 @@ for _, craft in pairs(Config.Crafting) do
 end
 
 AddStateBagChangeHandler("crafting", nil, function(bagName, _, bag)
-    QBCore.Debug(bag)
-    print(bag.icon)
     local entity = GetEntityFromStateBagName(bagName)
     if entity == 0 then return end
     while not HasCollisionLoadedAroundEntity(entity) do
@@ -96,25 +85,35 @@ end)
 --     end
 -- end
 
--- CreateThread(function()
---     local model = 'prop_toolchest_03_l2'
---     RequestModel(model)
---     while not HasModelLoaded(model) do
---         Wait(0)
---     end
---     CreateObject(joaat(model), 1091.72, 3072.62, 39.48, true, true, true)
---     CreateObject(joaat(model), 1085.39, 3071.17, 39.53, true, true, true)
---     CreateObject(joaat(model), 1077.57, 3068.95, 39.79, true, true, true)
--- end)
 
 
-local function PickupBench(benchType)
-    local playerPed = PlayerPedId()
-    local propHash = Config[benchType].object
-    local entity = GetClosestObjectOfType(GetEntityCoords(playerPed), 3.0, propHash, false, false, false)
-    if DoesEntityExist(entity) then
-        DeleteEntity(entity)
-        TriggerServerEvent('qb-crafting:server:addCraftingTable', benchType)
-        QBCore.Functions.Notify(string.format(Lang:t('notifications.pickupBench')), 'success')
+
+local testprop = {}
+
+CreateThread(function()
+    local prop = 'prop_toolchest_01'
+    RequestModel(prop)
+    while not HasModelLoaded(prop) do
+        Wait(0)
     end
-end
+    testprop[#testprop+1] = CreateObject(joaat(prop), 1101.73, 3074.53, 39.49, true, true, true)
+end)
+
+CreateThread(function()
+    local model = 'prop_toolchest_03_l2'
+    RequestModel(model)
+    while not HasModelLoaded(model) do
+        Wait(0)
+    end
+    CreateObject(joaat(model), 1091.72, 3072.62, 39.48, true, true, true)
+    CreateObject(joaat(model), 1085.39, 3071.17, 39.53, true, true, true)
+    CreateObject(joaat(model), 1077.57, 3068.95, 39.79, true, true, true)
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        for key, value in pairs(testprop) do
+            DeleteEntity(value)
+        end
+    end
+end)

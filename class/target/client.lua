@@ -1,3 +1,4 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 Target = {}
 Target.New = function(self, netid, model, icon, label, item, recipe, skill)
     print(netid, model, icon, label, item, recipe, skill)
@@ -28,14 +29,9 @@ Target.Entity = function(self)
                 {
                     num = 2,
                     icon = 'fa-solid fa-trash',
-                    label = 'Pickup',
+                    label = string.format(Lang:t('pickupworkBench')),
                     action = function(entity)
-                        local animDict = "pickup_object"
-                        RequestAnimDict(animDict)
-                        while not HasAnimDictLoaded(animDict) do
-                            Wait(0)
-                        end
-                        TaskPlayAnim(PlayerPedId(), animDict, "pickup_low", 8.0, -8.0, -1, 0, 0, false, false, false)
+                        QBCore.Functions.PlayAnim("pickup_object", "pickup_low", false, 2.0)
                         TriggerServerEvent('qb-crafting:server:pickup_bench', NetworkGetNetworkIdFromEntity(entity))
                         self:Delete()
                     end,
@@ -53,7 +49,7 @@ Target.Model = function(self)
                     icon = self.icon,
                     label = self.label,
                     action = function(entity)
-                        if GetEntityModel(entity) == joaat(self.model) then
+                        if GetEntityModel(entity) == joaat(self.model) then --TODO do we really care about checking it?
                             Menu:New(self.recipe, self.item, self.skill):OpenMenu()
                         end
                     end,

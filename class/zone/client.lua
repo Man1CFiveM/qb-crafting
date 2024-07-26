@@ -34,29 +34,6 @@ Zone.Combo = function(self)
     end)
 end
 
--- Zone.Combos = function(self)
---     local comboZone = {}
---     for key, location in ipairs(option.locations) do
---         local workbenchZone = BoxZone:Create(location, 3.0, 5.0, {
---             name = self.model..'_'..tostring(key),
---             debugPoly = Config.Settings.DebugPoly,
---             data = option
---         })
---         comboZone[#comboZone + 1] = workbenchZone
---     end
-
---     local combo = ComboZone:Create(comboZone, {name="combo"})
---     combo:onPlayerInOut(function(isPointInside, _, zone)
---         if isPointInside then
---             PressButtonToOpenCrafting(true, self.recipe, self.item, self.skill)
---             self.option = zone.data
---         else
---             exports['qb-core']:HideText()
---             PressButtonToOpenCrafting(false)
---         end
---     end)
--- end
-
 Zone.UseableItem = function(self)
     self.zone = CircleZone:Create(vector3(self.coords.x, self.coords.y, self.coords.z), 3.0, {
         name = "workbenchzone" ,
@@ -78,8 +55,4 @@ end
 
 Zone.Destroy = function(self)
     self.zone:destroy()
-end
-
-Zone.Get = function(self)
-    return self.option
 end

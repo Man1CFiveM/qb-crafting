@@ -1,28 +1,4 @@
 Config = {}
-Config.Settings = {
-    ImageBasePath = "nui://qb-inventory/html/images/", -- When using a different inventory, change this to the base path of the inventory images
-    TargetDistance = 2.5, -- Distance to target the crafting bench
-    TargetIcon = 'fas fa-tools', -- Icon to display when targeting the crafting bench
-    Distance = 2.0, -- Distance to place the crafting bench on the ground
-    Minigame = true, -- Enable or disable the skill check, if enabled the player will have to complete a skill check to craft the item
-    LostComponent = true, -- Enable or disable losing a component, if player fails the skill check or cancels the progresssbar they will lose a component
-    CraftingTime = {
-        Min = 1000, -- Minimum time in milliseconds to craft the item
-        Max = 2000, -- Maximum time in milliseconds to craft the item
-        Multiplied = true -- Enable or disable the multiplied crafting time, if enabled the crafting time will be multiplied by the amount of items to craft
-    },
-    DebugPoly = true, -- Enable or disable the debug poly for the crafting benches
-    BoxZone = {
-        Length = 3.5, -- Length of the boxzone
-        Width = 1.4, -- Width of the boxzone
-    },
-}
-
-
-Config.Minigame = function() -- Minigame to use for the skill check, needs to return atleast a true when succesfull
-    return exports['qb-minigames']:Skillbar('easy', '12345')
-end
-
 Config.Crafting = {
     [1] = {
         useitem = { -- item to use to open the crafting menu
@@ -34,7 +10,7 @@ Config.Crafting = {
         },
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipe = 'default', -- recipe to use for the crafting bench
-    },
+    }, -- TODO do we want to have a option for minigame on every single target?
     [2] = {
         useitem = {
             item = 'crafting2',
@@ -66,21 +42,6 @@ Config.Crafting = {
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipe = 'default', -- recipe to use for the crafting bench
     },
-    -- [5] = {
-    --     object = {
-    --         location = vector4(-13.94, -1086.91, 26.67, 0.0), -- a single location or a list can be passed
-    --         length = 3.0, -- length of the polyzone
-    --         width = 3.0, -- width of the polyzone
-    --         minZ = 26.67, -- ground level of the polyzone
-    --         maxZ = 27.67, -- height of the polyzone
-    --         -- location = {
-    --         --     vector4(-13.94, -1086.91, 26.67, 0.0),
-    --         --     vector4(-13.94, -1086.91, 26.67, 0.0)
-    --         -- },
-    --     },
-    --     skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
-    --     recipe = 'default', -- recipe to use for the crafting bench
-    -- },
 
     [5] = {
         ped = {
@@ -107,20 +68,20 @@ Config.Crafting = {
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipe = 'default', -- recipe to use for the crafting bench
     },
-
-
-
-
-
-
-    -- [5] = { -- attachment bench
-    --     target = false,
-    --     placement = 'useableitemtoplaceattachmentbench',
-    --     model = "prop_tool_bench02_ld",
-    --     skill = 'attachmentcraftingrep',
-    --     recipe = 'attachment',
-    --     locations = {
-    --         vector3(-25.08, -1082.77, 26.63)
-    --     }
-    -- },
 }
+
+-- [5] = { --TODO do we need this one?
+--     object = {
+--         location = vector4(-13.94, -1086.91, 26.67, 0.0), -- a single location or a list can be passed
+--         length = 3.0, -- length of the polyzone
+--         width = 3.0, -- width of the polyzone
+--         minZ = 26.67, -- ground level of the polyzone
+--         maxZ = 27.67, -- height of the polyzone
+--         -- location = {
+--         --     vector4(-13.94, -1086.91, 26.67, 0.0),
+--         --     vector4(-13.94, -1086.91, 26.67, 0.0)
+--         -- },
+--     },
+--     skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
+--     recipe = 'default', -- recipe to use for the crafting bench
+-- },

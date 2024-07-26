@@ -55,7 +55,7 @@ Workbench.Pickup = function(self, entity)
     if DoesEntityExist(placed[self.source]) then
         DeleteEntity(placed[self.source])
         local workbenchState = Entity(entity).state
-        exports['qb-inventory']:AddItem(self.source, workbenchState.item, 1, false, false, 'pickup workbench from crafting')
+        exports['qb-inventory']:AddItem(self.source, workbenchState.item, 1, false, false, 'pickup workbench for crafting')
         TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[workbenchState.item].item, 'add', 1)
         QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.pickupworkbench')),workbenchState.item, "primary")
         placed[self.source] = nil
