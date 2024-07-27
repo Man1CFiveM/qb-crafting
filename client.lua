@@ -25,7 +25,7 @@ RegisterNetEvent('qb-crafting:client:use_create_item',function(option)
         Wait(1)
     end
     if option.useitem.target then
-        return Target:New(option.netid, option.useitem.model, option.useitem.icon, option.useitem.label, option.useitem.item, option.recipe, option.skill):Entity()
+        return Target:New(option.netid, option.useitem.model, option.useitem.icon, option.useitem.label, option.useitem.item, option.recipe, option.skill, true):Entity()
     end
     local entity = NetToEnt(option.netid)
     local coords = GetEntityCoords(entity)
@@ -35,7 +35,8 @@ end)
 
 AddEventHandler('qb-menu:client:menuClosed', function()
     if Menu:Get() then
-        PressButtonToOpenCrafting(true, Zone:Get())
+        local recipe, item, skill = Zone:Get()
+        PressButtonToOpenCrafting(true, recipe, item, skill)
     end
 end)
 
@@ -59,10 +60,9 @@ AddStateBagChangeHandler("crafting", nil, function(bagName, _, bag)
     end
     SetEntityInvincible(entity, true)
     FreezeEntityPosition(entity, true)
-    TaskSetBlockingOfNonTemporaryEvents(entity, true)
-    Target:New(entity, nil, bag.icon, bag.label, nil, bag.recipe, bag.skill):Entity()
+    SetBlockingOfNonTemporaryEvents(entity, true)
+    Target:New(entity, nil, bag.icon, bag.label, nil, bag.recipe, bag.skill, false):Entity()
 end)
-
 
 
 -- local function setupUsingCraftingTable(option)

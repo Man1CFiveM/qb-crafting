@@ -17,7 +17,6 @@ Config.Settings = {
     },
 }
 
-
 Config.Minigame = function() -- Minigame to use for the skill check, needs to return atleast a true when succesfull
     return exports['qb-minigames']:Skillbar('easy', '12345')
 end

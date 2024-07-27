@@ -10,7 +10,7 @@ Config.Crafting = {
         },
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
         recipe = 'default', -- recipe to use for the crafting bench
-    }, -- TODO do we want to have a option for minigame on every single target?
+    }, -- TODO do we want to have a option for minigame on every single ta
     [2] = {
         useitem = {
             item = 'crafting2',

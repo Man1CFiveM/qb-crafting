@@ -1,7 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 Zone = {}
 Zone.New = function(self, coords, combo, model, recipe, item, skill)
-    print(coords, combo, model, recipe, item, skill)
     self.combo = nil
     self.model = model
     self.recipe = recipe
@@ -32,6 +31,10 @@ Zone.Combo = function(self)
             PressButtonToOpenCrafting(false)
         end
     end)
+end
+
+Zone.Get = function(self)
+    return self.recipe, self.item, self.skill
 end
 
 Zone.UseableItem = function(self)
