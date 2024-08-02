@@ -1,25 +1,28 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local isMenuOpen = false
-Menu = {}
-Menu.New = function(self, recipe, item, skill)
+CraftingMenu = {}
+CraftingMenu.new = function(self, recipe, skill)
     self.recipe = recipe
-    self.item = item
     self.skill = skill
-    self.amount = nil
-    self.isOpen = false
-    self.playerInventory = self:GetPlayerInventory()
-    self.experience = QBCore.Functions.GetPlayerData().metadata.rep[self.skill] or 0
-    self.menuItems = self:CreateSortedMenuItems()
-    self:OpenMenu()
+    self.playerInventory = self:getPlayerInventory()
     return self
 end
 
-Menu.OpenMenu = function(self)
+CraftingMenu.useTargetModel = function(self, model, recipe, skill)
+    self.recipe = recipe
+    self.item = model
+    self.skill = skill
+    self:openMenu()
+end
+
+CraftingMenu.openMenu = function(self)
     isMenuOpen = true
+    self.experience = QBCore.Functions.GetPlayerData().metadata.rep[self.skill] or 0
+    self.menuItems = self:createSortedMenuItems()
     exports['qb-menu']:openMenu(self.menuItems)
 end
 
-Menu.GetPlayerInventory = function(self)
+CraftingMenu.getPlayerInventory = function(self)
     local i = promise:new()
     QBCore.Functions.TriggerCallback('qb-crafting:server:getPlayersInventory', function(inventory)
         i:resolve(inventory)
@@ -28,13 +31,13 @@ Menu.GetPlayerInventory = function(self)
     return Citizen.Await(i)
 end
 
-Menu.CreateSortedMenuItems = function(self)
+CraftingMenu.createSortedMenuItems = function(self)
     local menuItemsCreatable = {}
     local menuItemsNonCreatable = {}
     for name, item in pairs(Config.Recipes[self.recipe]) do
         if self.experience >= item.required then
-            local disable, discription = self:EnableItemInMenu(item.components)
-            local menuItem = self:CreateMenuItem(name, disable, discription)
+            local disable, discription = self:enableItemInMenu(item.components)
+            local menuItem = self:createMenuItem(name, disable, discription)
             if disable then
                 menuItemsCreatable[#menuItemsCreatable + 1] = menuItem
             else
@@ -62,7 +65,7 @@ Menu.CreateSortedMenuItems = function(self)
     return menuItems
 end
 
-Menu.EnableItemInMenu = function(self, component)
+CraftingMenu.enableItemInMenu = function(self, component)
     local disable = true
     local discription = ''
     for item, amount in pairs(component) do
@@ -75,7 +78,7 @@ Menu.EnableItemInMenu = function(self, component)
     return disable, discription
 end
 
-Menu.CreateMenuItem = function(self,name, disable, discription)
+CraftingMenu.createMenuItem = function(self,name, disable, discription)
     return {
         header = QBCore.Shared.Items[name].label,
         txt = discription,
@@ -83,7 +86,7 @@ Menu.CreateMenuItem = function(self,name, disable, discription)
         params = {
             isAction = true,
             event = function()
-                self:CheckItem(name)
+                self:checkItem(name)
             end,
             args = {}
         },
@@ -91,20 +94,20 @@ Menu.CreateMenuItem = function(self,name, disable, discription)
     }
 end
 
-Menu.CheckItem = function(self, item)
+CraftingMenu.checkItem = function(self, item)
     local itemRecipe = Config.Recipes[self.recipe][item]
     self.reward = itemRecipe.reward
     self.item = item
-    self.amount = self:AmountOfItemsToCraft()
+    self.amount = self:amountOfItemsToCraft()
 
-    if not self:HasEnoughComponents() then
+    if not self:hasEnoughComponents() then
         PressButtonToOpenCrafting(true, self.option)
         return QBCore.Functions.Notify(string.format(Lang:t('notifications.notenoughMaterials')), 'error')
     end
-    self:CreateItem()
+    self:createItem()
 end
 
-Menu.HasEnoughComponents = function(self)
+CraftingMenu.hasEnoughComponents = function(self)
     local multipliedComponents = {}
     for comp, amount in pairs(Config.Recipes[self.recipe][self.item].components) do
         multipliedComponents[comp] = amount * self.amount
@@ -118,7 +121,7 @@ Menu.HasEnoughComponents = function(self)
     return true
 end
 
-Menu.AmountOfItemsToCraft = function(self)
+CraftingMenu.amountOfItemsToCraft = function(self)
     local dialog = exports['qb-input']:ShowInput({
         header = string.format(Lang:t('menus.entercraftAmount')),
         submitText = 'Confirm',
@@ -145,9 +148,9 @@ Menu.AmountOfItemsToCraft = function(self)
     return amount
 end
 
-Menu.CreateItem = function(self)
+CraftingMenu.createItem = function(self)
     if not Config.Settings.Minigame then
-        return self:RunProgressbarForCrafting()
+        return self:runProgressbarForCrafting()
     end
     local success = Config.Minigame()
     if not success then
@@ -158,10 +161,10 @@ Menu.CreateItem = function(self)
         PressButtonToOpenCrafting(true, self.option)
         return TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
     end
-    self:RunProgressbarForCrafting()
+    self:runProgressbarForCrafting()
 end
 
-Menu.RunProgressbarForCrafting = function(self)
+CraftingMenu.runProgressbarForCrafting = function(self)
     local timer = math.random(Config.Settings.CraftingTime.Min or 1000, Config.Settings.CraftingTime.Max or 2000)
     if Config.Settings.CraftingTime.Multiplied then
         timer = timer * self.amount
@@ -188,6 +191,15 @@ Menu.RunProgressbarForCrafting = function(self)
     end)
 end
 
-Menu.Get = function(self)
-    return isMenuOpen
+CraftingMenu.get = function(self)
+    if isMenuOpen then
+        return self.entity
+    end
+    return false
 end
+
+AddEventHandler('qb-menu:client:menuClosed', function()
+    if CraftingMenu:get() then
+        PressButtonToOpenCrafting(true, CraftingMenu:get())
+    end
+end)

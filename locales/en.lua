@@ -4,10 +4,10 @@ local Translations = {
         entercraftAmount = 'Enter Craft Amount:',
     },
     target = {
-        pickupworkBench = 'Pick up Workbench',
+        pickupStation = 'Pick up Workbench',
     },
     notifications = {
-        pickupBench = 'You have picked up the workbench.',
+        pickupStation = 'You have picked up the workbench.',
         invalidAmount = 'Invalid Amount Entered',
         invalidInput = 'Invalid Input Entered',
         notenoughMaterials = "You don't have enough materials!",

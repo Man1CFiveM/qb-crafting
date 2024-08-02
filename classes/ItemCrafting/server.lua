@@ -1,39 +1,40 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-Item = {}
-Item.New = function(self, source, item, amount, recipe, skill)
+ItemCrafting = {}
+ItemCrafting.New = function(self, source, item, amount, recipe, skill)
     self.source = source
-    self.item = item
     self.amount = amount
     self.recipe = recipe
     self.skill = skill
+    self.item = item
+    self.xp = Config.Recipes[recipe][item].reward
     self.components = Config.Recipes[recipe][item].components
-    self.reward = Config.Recipes[recipe][item].reward
     return self
 end
 
-Item.Add = function(self)
-    if not self:HasEnoughComponents() then
+ItemCrafting.itemToCraft = function(self)
+    if not self:checkSufficientComponents() then
         return print('Error handler, player can not create item', self.source) --TODO proper error handling. at this stage player should have enough components
     end
-    self:RemoveComponents()
+    self:removeComponentsForCrafting()
     exports['qb-inventory']:AddItem(self.source, self.item, self.amount, false, false, 'item crafted - '..self.item..' - '..self.amount)
-    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.craftMessage'), QBCore.Shared.Items[self.item].label), 'success')
+    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.craftMessage'), self.amount..' x '.. QBCore.Shared.Items[self.item].label), 'success')
 end
 
-Item.RemoveComponents = function(self)
+ItemCrafting.removeComponentsForCrafting = function(self)
     for component, count in pairs(self.components) do
+        print(component, count)
         exports['qb-inventory']:RemoveItem(self.source, component, count * self.amount, false, 'Remove component for crafting - '..self.item..' - '..component)
         TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[component], 'remove', count * self.amount)
     end
 end
 
-Item.Reward = function(self)
+ItemCrafting.earnExperiencePoints = function(self)
     local Player = QBCore.Functions.GetPlayer(self.source)
-    Player.Functions.AddRep(self.skill, self.reward)
-    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.xpGain'), self.reward, self.skill), 'success')
+    Player.Functions.AddRep(self.skill, self.xp)
+    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.xpGain'), self.xp, self.skill), 'success')
 end
 
-Item.HasEnoughComponents = function(self)
+ItemCrafting.checkSufficientComponents = function(self)
     local Player = QBCore.Functions.GetPlayer(self.source)
     local inventory = {}
     for _, _item in pairs(Player.PlayerData.items) do
@@ -48,7 +49,7 @@ Item.HasEnoughComponents = function(self)
     return true
 end
 
-Item.RandomLostComponents = function(self) --TODO Do we need to do any checks here?
+ItemCrafting.loseRandomComponents = function(self) --TODO Do we need to do any checks here?
     local components = Config.Recipes[self.recipe][self.item].components
 
     local componentKeys = {}
