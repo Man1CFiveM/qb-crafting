@@ -30,8 +30,8 @@ end
 
 ItemCrafting.earnExperiencePoints = function(self)
     local Player = QBCore.Functions.GetPlayer(self.source)
-    Player.Functions.AddRep(self.skill, self.xp)
-    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.xpGain'), self.xp, self.skill), 'success')
+    Player.Functions.AddRep(self.skill, self.xp * self.amount)
+    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.xpGain'), self.xp * self.amount, self.skill), 'success')
 end
 
 ItemCrafting.checkSufficientComponents = function(self)
