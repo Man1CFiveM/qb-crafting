@@ -18,11 +18,11 @@ ItemCrafting.itemToCraft = function(self)
     self:removeComponentsForCrafting()
     exports['qb-inventory']:AddItem(self.source, self.item, self.amount, false, false, 'item crafted - '..self.item..' - '..self.amount)
     QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.craftMessage'), self.amount..' x '.. QBCore.Shared.Items[self.item].label), 'success')
+    self:earnExperiencePoints()
 end
 
 ItemCrafting.removeComponentsForCrafting = function(self)
     for component, count in pairs(self.components) do
-        print('Removing component', component, count * self.amount)
         exports['qb-inventory']:RemoveItem(self.source, component, count * self.amount, false, 'Remove component for crafting - '..self.item..' - '..component)
         TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[component], 'remove', count * self.amount)
     end
