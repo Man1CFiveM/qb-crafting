@@ -22,7 +22,7 @@ end
 
 ItemCrafting.removeComponentsForCrafting = function(self)
     for component, count in pairs(self.components) do
-        print(component, count)
+        print('Removing component', component, count * self.amount)
         exports['qb-inventory']:RemoveItem(self.source, component, count * self.amount, false, 'Remove component for crafting - '..self.item..' - '..component)
         TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[component], 'remove', count * self.amount)
     end

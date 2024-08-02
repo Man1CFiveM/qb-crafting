@@ -8,7 +8,7 @@ function PressButtonToOpenCrafting(isActive, recipe, skill, label)
         while isCraftingActive do
             if IsControlJustPressed(0, 38) then
                 exports['qb-core']:HideText()
-                CraftingMenu:new(recipe, skill):openMenu()
+                CraftingMenu:new(recipe, skill, label):openMenu()
                 break
             end
             Wait(1)

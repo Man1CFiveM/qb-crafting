@@ -1,9 +1,10 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local isMenuOpen = false
 CraftingMenu = {}
-CraftingMenu.new = function(self, recipe, skill)
+CraftingMenu.new = function(self, recipe, skill, label)
     self.recipe = recipe
     self.skill = skill
+    self.label = label
     self.playerInventory = self:getPlayerInventory()
     return self
 end
@@ -101,7 +102,7 @@ CraftingMenu.checkItem = function(self, item)
     self.amount = self:amountOfItemsToCraft()
 
     if not self:hasEnoughComponents() then
-        PressButtonToOpenCrafting(true, self.option)
+        PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         return QBCore.Functions.Notify(string.format(Lang:t('notifications.notenoughMaterials')), 'error')
     end
     self:createItem()
@@ -137,12 +138,12 @@ CraftingMenu.amountOfItemsToCraft = function(self)
     })
 
     if not dialog then
-        PressButtonToOpenCrafting(true, self.option)
+        PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         return QBCore.Functions.Notify(string.format(Lang:t('notifications.invalidInput')), 'error')
     end
     local amount = tonumber(dialog.amount)
     if not dialog or amount <= 0 then
-        PressButtonToOpenCrafting(true, self.option)
+        PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         return QBCore.Functions.Notify(string.format(Lang:t('notifications.invalidAmount')), 'error')
     end
     return amount
@@ -155,10 +156,10 @@ CraftingMenu.createItem = function(self)
     local success = Config.Minigame()
     if not success then
         if not Config.Settings.LostComponent then
-            PressButtonToOpenCrafting(true, self.option)
+            PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
             return QBCore.Functions.Notify(string.format(Lang:t('notifications.craftingFailed')), 'error')
         end
-        PressButtonToOpenCrafting(true, self.option)
+        PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         return TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
     end
     self:runProgressbarForCrafting()
@@ -181,12 +182,12 @@ CraftingMenu.runProgressbarForCrafting = function(self)
     }, {}, {}, function()
         TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = self.amount, recipe = self.recipe, skill = self.skill})
         if not Config.Settings.target then
-            PressButtonToOpenCrafting(true, self.option)
+            PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         end
     end, function()
         TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
         if not Config.Settings.target then
-            PressButtonToOpenCrafting(true, self.option)
+            PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         end
     end)
 end
