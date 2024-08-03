@@ -30,7 +30,6 @@ end)
 
 local function usableItem(useitem)
     QBCore.Functions.CreateUseableItem(useitem.item, function(source)
-        QBCore.Debug(useitem)
         local recipe,skill,model,label,icon,item,target,src = useitem.recipe,useitem.skill,useitem.model,useitem.label,useitem.icon,useitem.item, useitem.target or false, source
         local craftingStation = CraftingStation:new(src, model, item, recipe, skill, label, icon):place()
         TriggerClientEvent('qb-crafting:client:place_crafting_station', src, NetworkGetNetworkIdFromEntity(craftingStation), target)
