@@ -1,4 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+
 local existingStation = {}
 CraftingStation = {}
 CraftingStation.new = function(self, src, model, item, recipe, skill, label, icon)

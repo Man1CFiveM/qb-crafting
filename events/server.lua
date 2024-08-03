@@ -1,5 +1,14 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+QBCore.Commands.Add('checkxp', Lang:t('commands.checkXp'), {}, false, function(source, _)
+    local reputation = QBCore.Functions.GetPlayer(source).PlayerData.metadata.rep
+    local rep = ''
+    for skill, xp in pairs(reputation) do
+        rep = rep .. skill .. ': ' .. xp .. ' '
+    end
+    QBCore.Functions.Notify(source, Lang:t('commands.checkXp')..rep, "primary", 5000)
+end)
+
 QBCore.Functions.CreateCallback('qb-crafting:server:getPlayersInventory', function(source, cb)
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return false end
