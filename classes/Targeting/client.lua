@@ -58,9 +58,9 @@ Targeting.enablePickup = function(self)
         icon = 'fa-solid fa-trash',
         label = string.format(Lang:t('target.pickupStation')),
         action = function(entity)
-            QBCore.Functions.PlayAnim("pickup_object", "pickup_low", false, 2.0)
+            QBCore.Functions.PlayAnim("pickup_object", "pickup_low", false, 3.0)
             self:remove()
-            TriggerServerEvent('qb-crafting:server:pickup_bench', NetworkGetNetworkIdFromEntity(entity))
+            TriggerServerEvent('qb-crafting:server:pickup_station', NetworkGetNetworkIdFromEntity(entity))
         end,
     }
 end

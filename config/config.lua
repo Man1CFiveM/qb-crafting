@@ -1,6 +1,7 @@
 Config = {}
 Config.Useitem = {
     [1] = {-- item to use to open the crafting menu
+        target = true, -- if true it uses the target system, if false it uses the press a button system
         item = 'crafting1', -- provide any item name that you want to use to t place the crafting station
         model = 'prop_toolchest_02',
         icon = 'fas fa-tools', -- icon to display when targeting the object
@@ -9,6 +10,7 @@ Config.Useitem = {
         recipe = 'default', -- recipe to use for the crafting bench
     }, -- example of a crafting station that uses a object that you can place and use the press a button system
     [2] = {
+        target = false,
         item = 'crafting2',
         model = "prop_toolchest_04",
         label = 'Crafting Bench use item Press E',

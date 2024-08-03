@@ -64,8 +64,8 @@ CraftingStation.pickup = function(self, entity)
     local craftingStation = Entity(entity).state.craftingStation
     self:delete()
     exports['qb-inventory']:AddItem(self.source, craftingStation.item, 1, false, false, 'pickup workbench for crafting')
-    TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[craftingStation.item].item, 'add', 1)
-    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.pickupStation')),craftingStation.item, "primary")
+    TriggerClientEvent('qb-inventory:client:ItemBox', self.source, QBCore.Shared.Items[craftingStation.item], 'add', 1)
+    QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.pickupStation')), "primary")
 end
 
 RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function(Player)
