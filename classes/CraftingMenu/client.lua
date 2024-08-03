@@ -1,19 +1,13 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local isMenuOpen = false
 CraftingMenu = {}
-CraftingMenu.new = function(self, recipe, skill, label)
+CraftingMenu.new = function(self, recipe, skill, label, target)
+    self.target = target
     self.recipe = recipe
     self.skill = skill
     self.label = label
     self.playerInventory = self:getPlayerInventory()
     return self
-end
-
-CraftingMenu.useTargetModel = function(self, model, recipe, skill)
-    self.recipe = recipe
-    self.item = model
-    self.skill = skill
-    self:openMenu()
 end
 
 CraftingMenu.openMenu = function(self)
@@ -100,7 +94,6 @@ CraftingMenu.checkItem = function(self, item)
     self.reward = itemRecipe.reward
     self.item = item
     self.amount = self:amountOfItemsToCraft()
-
     if not self:hasEnoughComponents() then
         PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         return QBCore.Functions.Notify(string.format(Lang:t('notifications.notenoughMaterials')), 'error')
@@ -109,6 +102,9 @@ CraftingMenu.checkItem = function(self, item)
 end
 
 CraftingMenu.hasEnoughComponents = function(self)
+    if not self.amount or self.amount <= 0  then
+        return false
+    end
     local multipliedComponents = {}
     for comp, amount in pairs(Config.Recipes[self.recipe][self.item].components) do
         multipliedComponents[comp] = amount * self.amount
@@ -195,19 +191,19 @@ CraftingMenu.runProgressbarForCrafting = function(self)
         flags = 1,
     }, {}, {}, function()
         TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = self.amount, recipe = self.recipe, skill = self.skill})
-        if not Config.Settings.target then
+        if not self.target then
             PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         end
     end, function()
         TriggerServerEvent('qb-crafting:server:item', false, {recipe = self.recipe, item = self.item, amount = self.amount})
-        if not Config.Settings.target then
+        if not self.target then
             PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         end
     end)
 end
 
 CraftingMenu.get = function(self)
-    if isMenuOpen then
+    if isMenuOpen and not self.target then
         return self.entity
     end
     return false

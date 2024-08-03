@@ -37,7 +37,7 @@ Targeting.addEntity = function(self, entity, recipe, skill, pickup)
             icon = self.icon,
             label = self.label,
             action = function()
-                CraftingMenu:new(recipe, skill):openMenu()
+                CraftingMenu:new(recipe, skill, nil, true):openMenu()
             end,
         },
     }
@@ -72,7 +72,7 @@ Targeting.addModel = function(self, model, recipe, skill)
                     icon = self.icon,
                     label = self.label,
                     action = function()
-                        CraftingMenu:new():useTargetModel(model, recipe, skill)
+                        CraftingMenu:new(recipe, skill, nil, true):openMenu()
                     end,
                 },
             },
