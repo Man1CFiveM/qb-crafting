@@ -15,7 +15,7 @@ RegisterNetEvent('qb-crafting:server:item',function(success, options)
     if not src or src <= 0 then return print('Error: source not found') end
     local item = ItemCrafting:New(src, options.item, options.amount, options.recipe, options.skill)
     if not success then
-        return item:RandomLostComponents()
+        return item:loseRandomComponents()
     end
     item:itemToCraft()
 end)

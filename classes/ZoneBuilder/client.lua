@@ -7,48 +7,24 @@ ZoneBuilder.new = function(self, recipe, skill, label)
     return self
 end
 
-ZoneBuilder.createObject = function(self, location, length, width, object)
-    if type(location) == 'table' then
-        self.craftingStation = 'object'
-        return self:combo(location, length, width, object)
-    end
-    local station = self:createEntity(object, location)
-    return self:boxzone(location, length, width, station)
-end
-
-ZoneBuilder.createPed = function(self, location, length, width, ped)
-    if type(location) == 'table' then
-        self.craftingStation = 'ped'
-        return self:combo(location, length, width, ped)
-    end
-    local station = self:createEntity(ped, location)
-    return self:boxzone(location, length, width, station)
-end
-
-ZoneBuilder.zone = function(self, location, length, width, object)
-    if self:isLocationTable(location) then
-        return self:combo(location, length, width, object)
-    end
-    return self:boxzone(location, length, width, object)
-end
-
-ZoneBuilder.createEntity = function(self, entityModel, locations)
+ZoneBuilder.createEntity = function(self, location, entityModel)
     QBCore.Functions.LoadModel(entityModel)
-    local craftingStation
-    if self.craftingStation == 'object' then
-        craftingStation = CreateObject(joaat(entityModel), locations.x, locations.y, locations.z, false, false, false)
-        SetEntityHeading(craftingStation, locations.w)
-    elseif self.craftingStation == 'ped' then
-        craftingStation = CreatePed(0, joaat(entityModel), locations.x, locations.y, locations.z, locations.w, false, false)
-        SetBlockingOfNonTemporaryEvents(craftingStation, true)
-        SetEntityInvincible(craftingStation, true)
+    if not self.isPed then
+        local object = CreateObject(joaat(entityModel), location.x, location.y, location.z, false, false, false)
+        SetEntityHeading(object, location.w)
+        FreezeEntityPosition(object, true)
+        return object
     end
-    FreezeEntityPosition(craftingStation, true)
-    SetModelAsNoLongerNeeded(entityModel)
-    return craftingStation
+    local ped = CreatePed(0, joaat(entityModel), location.x, location.y, location.z, location.w, false, false)
+    self.ped = ped
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    SetEntityInvincible(ped, true)
+    FreezeEntityPosition(ped, true)
+    return ped
 end
 
-ZoneBuilder.combo = function(self, locations, length, width, object)
+ZoneBuilder.combo = function(self, locations, length, width, entityModel, isPed)
+    self.isPed = isPed
     local zones = {}
     for key, location in ipairs(locations) do
         local zoneData = {
@@ -56,15 +32,18 @@ ZoneBuilder.combo = function(self, locations, length, width, object)
             debugPoly = Config.Settings.DebugPoly,
             heading = location.heading,
         }
-        if self.craftingStation then
-            zoneData.data = self:createEntity(object, location)
+        zoneData.data = zoneData.data or {}
+        if not self.isPed then
+            self:createEntity(location, entityModel)
+        else
+            self:createEntity(location, entityModel)
         end
         local workbenchZone = BoxZone:Create(vector3(location.x, location.y, location.z), length, width, zoneData)
         zones[#zones + 1] = workbenchZone
     end
 
     local craftingZone = ComboZone:Create(zones, {name="combo"})
-    craftingZone:onPlayerInOut(function(isPointInside, _, _)
+    craftingZone:onPlayerInOut(function(isPointInside)
         if isPointInside then
             PressButtonToOpenCrafting(true, self.recipe, self.skill, self.label)
         else

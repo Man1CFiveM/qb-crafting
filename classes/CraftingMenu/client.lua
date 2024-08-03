@@ -165,6 +165,20 @@ CraftingMenu.createItem = function(self)
     self:runProgressbarForCrafting()
 end
 
+CraftingMenu.playAnim = function(dict, anim, ped)
+    print(dict, anim, ped)
+    local peds = ped or PlayerPedId()
+    local start = GetGameTimer()
+    while not HasAnimDictLoaded(dict) do
+        RequestAnimDict(dict)
+        if (GetGameTimer() - start) > 100 then
+            return print('Animation dictionary failed to load')
+        end
+        Wait(1)
+    end
+    TaskPlayAnim(peds, dict, anim, 8.0, 8.0, -1, 50, 0, false, false, false)
+end
+
 CraftingMenu.runProgressbarForCrafting = function(self)
     local timer = math.random(Config.Settings.CraftingTime.Min or 1000, Config.Settings.CraftingTime.Max or 2000)
     if Config.Settings.CraftingTime.Multiplied then
@@ -178,7 +192,7 @@ CraftingMenu.runProgressbarForCrafting = function(self)
     }, {
         animDict = 'mini@repair',
         anim = 'fixing_a_player',
-        flags = 16,
+        flags = 1,
     }, {}, {}, function()
         TriggerServerEvent('qb-crafting:server:item', true, {item = self.item, amount = self.amount, recipe = self.recipe, skill = self.skill})
         if not Config.Settings.target then

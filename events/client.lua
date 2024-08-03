@@ -1,5 +1,3 @@
-local QBCore = exports['qb-core']:GetCoreObject()
-
 local isCraftingActive = false
 function PressButtonToOpenCrafting(isActive, recipe, skill, label)
     isCraftingActive = isActive
@@ -28,11 +26,12 @@ end)
 local function workStationHandler(workstation)
     local newZone = ZoneBuilder:new(workstation.recipe, workstation.skill, workstation.label)
     if workstation.ped then
-        return newZone:createPed(workstation.location, workstation.length, workstation.width, workstation.ped)
+        return newZone:combo(workstation.location, workstation.length, workstation.width, workstation.ped, true)
     end
     if workstation.object then
-        return newZone:createObject(workstation.location, workstation.length, workstation.width, workstation.object)
+        return newZone:combo(workstation.location, workstation.length, workstation.width, workstation.object, false)
     end
+    newZone:boxZone(workstation.location, workstation.length, workstation.width)
 end
 
 if Config.CraftingStations then
@@ -42,9 +41,6 @@ if Config.CraftingStations then
         end
         if workstation.location then
             workStationHandler(workstation)
-        end
-        if not workstation.model and not workstation.location then
-            ZoneBuilder:new(workstation.recipe, workstation.skill, workstation.label):boxZone(workstation.location, workstation.length, workstation.width)
         end
     end
 end
