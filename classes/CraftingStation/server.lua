@@ -4,6 +4,7 @@ local existingStation = {}
 CraftingStation = {}
 CraftingStation.new = function(self, src, model, item, recipe, skill, label, icon)
     self.source = src
+    self.citizenId = QBCore.Functions.GetPlayer(src).PlayerData.citizenid
     self.model = model
     self.item = item
     self.recipe = recipe
@@ -19,7 +20,7 @@ CraftingStation.place = function(self)
     self:checkExistingPlacement()
     local craftingStation = CreateObjectNoOffset(joaat(self.model), self.x, self.y, self.z-1, true, true, false)
     SetEntityHeading(craftingStation, self.w)
-    existingStation[self.source] = craftingStation
+    existingStation[self.citizenId] = craftingStation
     self:setItemState(craftingStation)
     return craftingStation
 end
@@ -48,20 +49,22 @@ CraftingStation.getForwardVector = function(self)
 end
 
 CraftingStation.checkExistingPlacement = function(self)
-    --TODO
-    -- use this to check if player has a station placed already and got disconnected
+    if existingStation[self.citizenId] then
+        self:pickup(existingStation[self.citizenId])
+        self:delete()
+    end
 end
 
 CraftingStation.delete = function(self)
-    if not existingStation[self.source] then return end
-    if DoesEntityExist(existingStation[self.source]) then
-        DeleteEntity(existingStation[self.source])
+    if not existingStation[self.citizenId] then return end
+    if DoesEntityExist(existingStation[self.citizenId]) then
+        DeleteEntity(existingStation[self.citizenId])
     end
-    CraftingStation[self.source] = nil
+    existingStation[self.citizenId] = nil
 end
 
 CraftingStation.pickup = function(self, entity)
-    if existingStation[self.source] ~= entity then return print(self.source, entity)end
+    if existingStation[self.citizenId] ~= entity then return print(self.citizenId, entity)end
     local craftingStation = Entity(entity).state.craftingStation
     self:delete()
     exports['qb-inventory']:AddItem(self.source, craftingStation.item, 1, false, false, 'pickup workbench for crafting')
@@ -69,9 +72,9 @@ CraftingStation.pickup = function(self, entity)
     QBCore.Functions.Notify(self.source, string.format(Lang:t('notifications.pickupStation')), "primary")
 end
 
-RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function(Player)
-    local craftingStation = existingStation[Player.PlayerData.source]
-    if craftingStation then
-        TriggerClientEvent('qb-crafting:client:place_crafting_station', Player.PlayerData.source, NetworkGetNetworkIdFromEntity(craftingStation), false)
+RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
+    if not source then
+        return print('source not found :'..source)
     end
+    CraftingStation:new(source):checkExistingPlacement()
 end)
