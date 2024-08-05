@@ -36,6 +36,15 @@ This function is used to specify the minigame for the skill check. It needs to r
 Config.Minigame = function()
     return exports['qb-minigames']:Skillbar('easy', '12345')
 end
+
+## Commands
+
+The command checkxp will return every reputation you have and its total xp on it
+
+```
+/checkxp
+```
+
 # License
 
     QBCore Framework
