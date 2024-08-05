@@ -15,6 +15,9 @@ Config.Settings = {
         Length = 3.5, -- Length of the boxzone
         Width = 1.4, -- Width of the boxzone
     },
+    CircleZone = {
+        Radius = 3.0
+    }, -- Radius of the circle zone
 }
 
 Config.Minigame = function() -- Minigame to use for the skill check, needs to return atleast a true when succesfull
