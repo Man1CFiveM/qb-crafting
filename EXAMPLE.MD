@@ -1,4 +1,5 @@
 # Crafting Recipe Configuration
+## these are examples you can use in `config.lua` for the others way to create a crafting station
 
 Crafting recipes are defined in the `recipe.lua` file located in the `config` folder.
 
