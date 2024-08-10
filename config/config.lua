@@ -21,7 +21,7 @@ Config.Useitem = {
 
 Config.CraftingStations = {
     [1] = {
-        model = 'prop_toolchest_05', -- example loaction of 1 crafting station, vector3(-41.16, -1088.03, 25.42
+        model = 'prop_toolchest_05', -- example loaction of 1 crafting station, vector3(-41.16, -1088.03, 25.42)
         icon = 'fas fa-tools', -- icon to display when targeting the object
         label = 'Crafting Model Target',  -- label to display when targeting the object
         skill = 'craftingrep', -- xp type to use for the crafting xp. its part of the metadata
