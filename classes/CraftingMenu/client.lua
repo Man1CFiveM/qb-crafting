@@ -29,14 +29,27 @@ end
 CraftingMenu.createSortedMenuItems = function(self)
     local menuItemsCreatable = {}
     local menuItemsNonCreatable = {}
+    
+    -- Obtains the player job, gang and grade from qb-core
+    local playerData = QBCore.Functions.GetPlayerData()
+    local playerJob = playerData.job.name
+    local playerJobGrade = playerData.job.grade.level
+    local playerGang = playerData.gang.name
+    local playerGangGrade = playerData.gang.grade.level
+
     for name, item in pairs(Config.Recipes[self.recipe]) do
         if self.experience >= item.required then
-            local disable, discription = self:enableItemInMenu(item.components)
-            local menuItem = self:createMenuItem(name, disable, discription)
-            if disable then
-                menuItemsCreatable[#menuItemsCreatable + 1] = menuItem
-            else
-                menuItemsNonCreatable[#menuItemsNonCreatable + 1] = menuItem
+            -- Check if the player job or gang matches with the jobNeeded if it is diferent than none
+            if item.jobNeeded == 'none' or
+            (item.jobNeeded == playerJob and (tonumber(item.jobGrade) <= tonumber(playerJobGrade))) or
+            (item.jobNeeded == playerGang and (tonumber(item.jobGrade) <= tonumber(playerGangGrade))) then
+                local disable, discription = self:enableItemInMenu(item.components)
+                local menuItem = self:createMenuItem(name, disable, discription)
+                if disable then
+                    menuItemsCreatable[#menuItemsCreatable + 1] = menuItem
+                else
+                    menuItemsNonCreatable[#menuItemsNonCreatable + 1] = menuItem
+                end
             end
         end
     end
